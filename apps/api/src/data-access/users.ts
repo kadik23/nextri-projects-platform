@@ -1,22 +1,65 @@
-import { db } from "@repo/db/src";
+import { db, drizzleF, schema } from "@repo/db";
+import { getRandomId } from "../lib/utils";
 import { userTable } from "@repo/db/src/schema";
-import { createId } from "@paralleldrive/cuid2";
 
 export const insterUser = async ({ email }: { email: string }) => {
-  const newUser = await db.insert(userTable).values({
+  const newUser = await db.insert(schema.userTable).values({
     email,
-    id: createId(),
+    id: getRandomId(),
   });
 
   return newUser;
 };
 
-export const deleteUser = () => {};
+export async function deleteUser(userId: string) {
+  await db
+    .delete(schema.userTable)
+    .where(drizzleF.eq(schema.userTable.id, userId));
+}
 
-export const updateUser = () => {};
+export async function getUser(userId: string) {
+  const user = await db.query.userTable.findFirst({
+    where: drizzleF.eq(schema.userTable.id, userId),
+  });
 
-export const getUserById = () => {};
+  return user;
+}
 
-export const getUserByEmail = () => {};
+export async function updateUser(
+  userId: string,
+  updatedUser: Partial<schema.TUser>
+) {
+  await db
+    .update(userTable)
+    .set(updatedUser)
+    .where(drizzleF.eq(schema.userTable.id, userId));
+}
 
-export const getAllUsers = () => {};
+export async function getUserByEmail(email: string) {
+  const user = await db.query.userTable.findFirst({
+    where: drizzleF.eq(schema.userTable.email, email),
+  });
+
+  return user;
+}
+
+export async function getMagicUserAccountByEmail(email: string) {
+  const user = await db.query.userTable.findFirst({
+    where: drizzleF.eq(schema.userTable.email, email),
+  });
+
+  return user;
+}
+
+export async function createMagicUser(email: string) {
+  const [user] = await db
+    .insert(schema.userTable)
+    .values({
+      email,
+      emailVerified: new Date(),
+      id: getRandomId(),
+    })
+    .returning();
+
+  return user;
+}
