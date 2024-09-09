@@ -4,6 +4,6 @@ import { sessionTable, userTable } from "./schema";
 
 export const adapter = new DrizzlePostgreSQLAdapter(
   db,
-  sessionTable,
-  userTable
+  sessionTable as any,
+  userTable as any
 );
