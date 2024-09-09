@@ -5,11 +5,13 @@
   },
   "dependencies": {
     "@hono/node-server": "^1.12.2",
-    "hono": "^4.5.11"
+    "hono": "^4.5.11",
+    "@repo/db": "workspace:*"
   },
   "devDependencies": {
     "@types/node": "^20.11.17",
     "tsx": "^4.7.1",
-    "@repo/typescript-config": "workspace:*"
+    "@repo/typescript-config": "workspace:*",
+    "@repo/eslint-config": "workspace:*"
   }
 }
