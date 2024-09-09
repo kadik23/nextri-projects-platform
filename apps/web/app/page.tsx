@@ -1,17 +1,9 @@
-"use client"; 
+import { FC } from 'react';
 
-import { useRouter } from 'next/navigation';
-import { useEffect } from 'react';
+const Page: FC = () => {
+  return (
+    <div className='text-black text-3xl border-2 border-blue-600  bg-red-700 '>page</div>
+  );
+};
 
-const HomePage: React.FC = (): null => {
-  const router = useRouter();
-
-  useEffect(() => {
-   
-    router.push('/auth');
-  }, [router]);
-
-  return null;
-}
-
-export default HomePage;
+export default Page;
