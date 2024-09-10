@@ -1,10 +1,11 @@
 import {
+  createAccountViaGithub,
   createAccountViaGoogle,
   getAccountByGithubId,
   getAccountByGoogleId,
 } from "../../data-access/accounts";
 import { getUserByEmail, insterUser } from "../../data-access/users";
-import { GoogleUser } from "../../validations/types";
+import { GitHubUser, GoogleUser } from "../../validations/types";
 
 export async function getAccountByGoogleIdUseCase(googleId: string) {
   return await getAccountByGoogleId(googleId);
@@ -22,6 +23,18 @@ export async function createGoogleUserUseCase(googleUser: GoogleUser) {
   }
 
   await createAccountViaGoogle(existingUser?.id!, googleUser.sub);
+
+  return existingUser?.id!;
+}
+
+export async function createGithubUserUseCase(githubUser: GitHubUser) {
+  let existingUser = await getUserByEmail(githubUser.email);
+
+  if (!existingUser) {
+    existingUser = await insterUser({ email: githubUser.email });
+  }
+
+  await createAccountViaGithub(existingUser?.id!, githubUser.id);
 
   return existingUser?.id!;
 }
