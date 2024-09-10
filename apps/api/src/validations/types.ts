@@ -1,4 +1,3 @@
-
 export type UserProfile = {
   id: UserId;
   name: string | null;
@@ -31,6 +30,3 @@ export interface Email {
   verified: boolean;
   visibility: string | null;
 }
-
-export type ProjectCategoryPreference = "freelance" | "open source" | "company"
-export type workPace = "Short-term" | "Medium-term" | "Long-term" | "Specific-task";
