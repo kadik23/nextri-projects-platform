@@ -1,6 +1,6 @@
 import { Resend } from "resend";
 
-const resend = new Resend(process.env.RESEND_ACCESS_KEY);
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 export async function sendEmail(
   email: string,
@@ -11,7 +11,7 @@ export async function sendEmail(
     from: process.env.EMAIL_FROM!,
     to: email,
     subject,
-    html: "",
+    html: bodyHtml,
   });
 
   if (error) {

@@ -16,7 +16,9 @@
         "DB_HOST",
         "DB_PORT",
         "DB_NAME",
-        "DB_SSL_MODE"
+        "DB_SSL_MODE",
+        "RESEND_API_KEY",
+        "EMAIL_FROM"
       ]
     },
     "lint": {
