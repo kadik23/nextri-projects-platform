@@ -3,7 +3,6 @@ import { pgTable, text, timestamp } from "drizzle-orm/pg-core";
 export const userTable = pgTable("user", {
   id: text("id").primaryKey(),
   email: text("email").unique(),
-  emailVerified: timestamp("emailVerified", { mode: "date" }),
   createdAt: timestamp("created_at"),
   updatedAt: timestamp("updated_at"),
 });

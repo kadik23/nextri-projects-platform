@@ -10,10 +10,14 @@ import { createSession } from "../lib/session";
 const auth = new Hono();
 
 auth.post("/get-magic-link", async (c) => {
+  console.log("the generating magic link is working  is running");
   try {
-    const body = await c.req.parseBody();
+    const body = await c.req.json();
 
+    console.log(body);
     const data = emailSchema.parse(body);
+
+    console.log(data);
 
     await sendMagicLinkUseCase(data.email);
 
@@ -34,12 +38,14 @@ auth.get("/magic/:token", async (c) => {
 
   const sessionCookie = await createSession(user?.id);
 
-  setCookie(
-    c,
-    sessionCookie.name,
-    sessionCookie.value,
-    sessionCookie.attributes
-  );
+  setCookie(c, sessionCookie.name, sessionCookie.value, {
+    ...sessionCookie.attributes,
+    maxAge: 60 * 60 * 24 * 30,
+  });
+
+  c.text("check you cookies to see if you are authanticated");
+
+  // redirec the user to the dashboard
 });
 
 export default auth;

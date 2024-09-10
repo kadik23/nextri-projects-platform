@@ -36,12 +36,3 @@ export async function getMagicLinkByToken(token: string) {
 export async function deleteMagicToken(token: string) {
   await db.delete(magicLinksTable).where(eq(magicLinksTable.token, token));
 }
-
-export async function setEmailVerified(userId: string) {
-  await db
-    .update(userTable)
-    .set({
-      emailVerified: new Date(),
-    })
-    .where(eq(userTable.id, userId));
-}

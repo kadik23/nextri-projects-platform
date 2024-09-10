@@ -8,7 +8,7 @@ export async function sendEmail(
   bodyHtml: string
 ) {
   const { error } = await resend.emails.send({
-    from: process.env.EMAIL_FROM!,
+    from: "abdellah@cravvelo.com",
     to: email,
     subject,
     html: bodyHtml,

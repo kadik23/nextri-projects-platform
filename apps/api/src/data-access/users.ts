@@ -47,7 +47,7 @@ export async function createMagicUser(email: string) {
     .insert(userTable)
     .values({
       email,
-      emailVerified: new Date(),
+
       id: getRandomId(),
     })
     .returning();

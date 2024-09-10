@@ -63,7 +63,7 @@ export const getMagicLinkEmailTemplate = ({ token }: { token: string }) => {
         <div class="section">
             <p class="text">You're magic link login is below, click to login.</p>
             <p class="text">
-                <a href="http://localhost:3001/login/magic/${token}" target="_blank" class="link">
+                <a href="http://localhost:3001/auth/magic/${token}" target="_blank" class="link">
                     Login using Magic Link
                 </a>
             </p>

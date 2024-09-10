@@ -25,8 +25,6 @@ app.get("/", (c) => {
 const PORT = 3001;
 console.log(`Server is running on http://localhost:${PORT}`);
 
-console.log(process.env.RESEND_API_KEY);
-
 serve({
   fetch: app.fetch,
   port: PORT,
