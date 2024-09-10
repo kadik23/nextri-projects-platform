@@ -53,10 +53,7 @@ export const getMagicLinkEmailTemplate = ({ token }: { token: string }) => {
             text-align: center;
         }
 
-        .img-center {
-            display: block;
-            margin: 0 auto;
-        }
+      
     </style>
 </head>
 
@@ -66,7 +63,7 @@ export const getMagicLinkEmailTemplate = ({ token }: { token: string }) => {
         <div class="section">
             <p class="text">You're magic link login is below, click to login.</p>
             <p class="text">
-                <a href="https://domainta3na.com/login/magic?token=${token}" target="_blank" class="link">
+                <a href="http://localhost:3001/login/magic/${token}" target="_blank" class="link">
                     Login using Magic Link
                 </a>
             </p>
