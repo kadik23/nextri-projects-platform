@@ -57,6 +57,7 @@ auth.get("/magic/:token", async (c) => {
 });
 
 auth.get("/google-redirect-url", async (c) => {
+  console.log("this is from the redirect url ");
   const state = generateState();
   const codeVerifier = generateCodeVerifier();
   const url = await googleAuth.createAuthorizationURL(state, codeVerifier, {
@@ -77,12 +78,12 @@ auth.get("/google-redirect-url", async (c) => {
     maxAge: 60 * 10,
   });
 
-  c.json({
+  return c.json({
     url,
   });
 });
 
-auth.get("/github-redirect-url", async (c) => {
+auth.get("/google-callback", async (c) => {
   const url = new URL(c.req.url);
   const code = url.searchParams.get("code");
   const state = url.searchParams.get("state");
