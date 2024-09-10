@@ -31,17 +31,11 @@ export async function loginWithMagicLinkUseCase(token: string) {
 
   const existingUser = await getUserByEmail(magicLinkInfo.email);
 
-  console.log("the user exixts");
-  console.log(existingUser);
-
   if (existingUser) {
     await deleteMagicToken(token);
     return existingUser;
   } else {
     const newUser = await createMagicUser(magicLinkInfo.email);
-
-    console.log("new user");
-    console.log(newUser);
 
     await deleteMagicToken(token);
     return newUser;

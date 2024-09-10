@@ -14,10 +14,7 @@ auth.post("/get-magic-link", async (c) => {
   try {
     const body = await c.req.json();
 
-    console.log(body);
     const data = emailSchema.parse(body);
-
-    console.log(data);
 
     await sendMagicLinkUseCase(data.email);
 
