@@ -1,17 +1,9 @@
 import { Hono } from "hono";
 
-const users = new Hono();
+const auth = new Hono().basePath("/auth");
 
-users.get("/get-magic-link", (c) => c.text("List users")); // GET /user
+auth.post("/get-magic-link", (c) => c.text("List users")); // GET /user
 
-users.post("/register", async (c) => {});
+auth.get("/magic", async (c) => {});
 
-users.get("/:id", (c) => {
-  // GET /user
-  const id = c.req.param("id");
-  return c.text("Get user: " + id);
-});
-
-users.post("/", (c) => c.text("Create user")); // POST /user
-
-export default users;
+export default auth;
