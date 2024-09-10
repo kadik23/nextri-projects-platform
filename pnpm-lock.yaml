@@ -54,6 +54,9 @@ importers:
       '@repo/typescript-config':
         specifier: workspace:*
         version: link:../../packages/typescript-config
+      '@types/dotenv':
+        specifier: ^8.2.0
+        version: 8.2.0
       '@types/node':
         specifier: ^20.11.17
         version: 20.16.5
@@ -1102,6 +1105,10 @@ packages:
 
   '@tybys/wasm-util@0.8.3':
     resolution: {integrity: sha512-Z96T/L6dUFFxgFJ+pQtkPpne9q7i6kIPYCFnQBHSgSPV9idTsKfIhCss0h5iM9irweZCatkrdeP8yi5uM1eX6Q==}
+
+  '@types/dotenv@8.2.0':
+    resolution: {integrity: sha512-ylSC9GhfRH7m1EUXBXofhgx4lUWmFeQDINW5oLuS+gxWdfUeW4zJdeVTYVkexEW+e2VUvlZR2kGnGGipAWR7kw==}
+    deprecated: This is a stub types definition. dotenv provides its own type definitions, so you do not need this installed.
 
   '@types/eslint@8.56.12':
     resolution: {integrity: sha512-03ruubjWyOHlmljCVoxSuNDdmfZDzsrrz0P2LeJsOXr+ZwFQ+0yQIwNCwt/GYhV7Z31fgtXJTAEs+FYlEL851g==}
@@ -4311,6 +4318,10 @@ snapshots:
     dependencies:
       tslib: 2.7.0
     optional: true
+
+  '@types/dotenv@8.2.0':
+    dependencies:
+      dotenv: 16.4.5
 
   '@types/eslint@8.56.12':
     dependencies:
