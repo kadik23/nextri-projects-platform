@@ -73,10 +73,75 @@ export const getUserOnboarding = async (userId: string) => {
     const technologies = await db.query.technologyTable.findFirst({
         where: eq(technologyTable.userOnboardingId, userOnboarding.id),
     });
-    
+
     return {
         ...userOnboarding,
         projectCategoriesPreference,
         technologies,
     };
 }
+
+export const updateUserOnboarding = async (
+    updates: {
+        userId: string, role?: string; skillLevel?: string; workPace?: string; technologies?: string[], projectCategoriesPreference?: string[];
+    }
+) => {
+    return await db.transaction(async (trx) => {
+        try {
+
+            const existingOnboarding = await trx
+                .select()
+                .from(userOnboardingTable)
+                .where(eq(userOnboardingTable.userId, updates.userId))
+                .limit(1);
+
+            if (!existingOnboarding || existingOnboarding.length === 0) {
+                throw new Error(`No onboarding record found for user ID ${updates.userId}`);
+            }
+
+            const userOnboardingId = existingOnboarding[0]?.id;
+
+            const updatedOnboarding = await trx
+                .update(userOnboardingTable)
+                .set({
+                    ...(updates.role && { role: updates.role }),
+                    ...(updates.skillLevel && { skillLevel: updates.skillLevel }),
+                    ...(updates.workPace && { workPace: updates.workPace }),
+                })
+                .where(eq(userOnboardingTable.userId, updates.userId))
+                .returning();
+
+
+            if (updates.technologies) {
+                await trx
+                    .delete(technologyTable)
+                    .where(eq(technologyTable.userOnboardingId, userOnboardingId as string)); 
+
+                for (const tech of updates.technologies) {
+                    await trx.insert(technologyTable).values({
+                        userOnboardingId: userOnboardingId as string,
+                        name: tech,
+                    });
+                }
+            }
+
+            if (updates.projectCategoriesPreference) {
+                await trx
+                    .delete(projectCategoryPreferenceTable)
+                    .where(eq(projectCategoryPreferenceTable.userOnboardingId, userOnboardingId as string));
+
+                for (const category of updates.projectCategoriesPreference) {
+                    await trx.insert(projectCategoryPreferenceTable).values({
+                        userOnboardingId: userOnboardingId as string,
+                        name: category,
+                    });
+                }
+            }
+
+            return updatedOnboarding;
+
+        } catch (error: any) {
+            throw new Error(`Failed to update onboarding data: ${error.message}`);
+        }
+    });
+};
