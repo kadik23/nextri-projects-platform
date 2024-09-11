@@ -1,3 +1,4 @@
+import { createId } from "@paralleldrive/cuid2";
 import { db } from "@repo/db/src";
 import crypto from "crypto";
 
@@ -20,3 +21,5 @@ export async function createTransaction<T extends typeof db>(
 ) {
   await db.transaction(cb as any);
 }
+
+export const getRandomId = () => createId();

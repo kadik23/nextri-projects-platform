@@ -13,5 +13,3 @@ users.get("/:id", (c) => {
 });
 
 users.post("/", (c) => c.text("Create user")); // POST /user
-
-export default users;
