@@ -1,10 +1,22 @@
-import { pgTable, text, timestamp } from "drizzle-orm/pg-core";
+import { pgEnum, pgTable, text, timestamp } from "drizzle-orm/pg-core";
+
+export const accountTypeEnum = pgEnum("type", ["email", "google", "github"]);
 
 export const userTable = pgTable("user", {
   id: text("id").primaryKey(),
   email: text("email").unique(),
   createdAt: timestamp("created_at"),
   updatedAt: timestamp("updated_at"),
+});
+
+export const accountTable = pgTable("account", {
+  id: text("id").primaryKey(),
+  userId: text("userId")
+    .notNull()
+    .references(() => userTable.id, { onDelete: "cascade" }),
+  accountType: accountTypeEnum("accountType").notNull(),
+  githubId: text("githubId").unique(),
+  googleId: text("googleId").unique(),
 });
 
 export const sessionTable = pgTable("session", {
@@ -21,26 +33,6 @@ export const sessionTable = pgTable("session", {
 export const magicLinksTable = pgTable("magic_links", {
   id: text("id").primaryKey(),
   email: text("email").notNull().unique(),
-  token: text("token"),
-  tokenExpiresAt: timestamp("tokenExpiresAt", { mode: "date" }),
-});
-
-export const resetTokensTable = pgTable("reset_tokens", {
-  id: text("id").primaryKey(),
-  userId: text("userId")
-    .notNull()
-    .references(() => userTable.id, { onDelete: "cascade" })
-    .unique(),
-  token: text("token"),
-  tokenExpiresAt: timestamp("tokenExpiresAt", { mode: "date" }),
-});
-
-export const verifyEmailTokensTable = pgTable("verify_email_tokens", {
-  id: text("id").primaryKey(),
-  userId: text("userId")
-    .notNull()
-    .references(() => userTable.id, { onDelete: "cascade" })
-    .unique(),
   token: text("token"),
   tokenExpiresAt: timestamp("tokenExpiresAt", { mode: "date" }),
 });

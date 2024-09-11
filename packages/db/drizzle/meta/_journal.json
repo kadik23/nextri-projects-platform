@@ -15,6 +15,13 @@
       "when": 1725959217924,
       "tag": "0001_numerous_doctor_spectrum",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1725983451282,
+      "tag": "0002_concerned_cassandra_nova",
+      "breakpoints": true
     }
   ]
 }
