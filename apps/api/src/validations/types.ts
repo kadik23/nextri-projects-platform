@@ -6,6 +6,19 @@ export type UserProfile = {
 
 export type UserId = number;
 
+
+export type ProjectCategoryPreference = {
+  id?: string,
+  userOnboardingId: string,
+  name: string
+}
+
+export type Technology = {
+  id?: string,
+  userOnboardingId: string,
+  name: string
+}
+
 export interface GoogleUser {
   sub: string;
   name: string;

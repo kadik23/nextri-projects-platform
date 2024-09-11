@@ -1,7 +1,7 @@
 import { serve } from "@hono/node-server";
 import { Hono } from "hono";
 import authRoutes from "./auth";
-
+import onboardingRoutes from "./onboarding";
 import * as dotenv from "dotenv";
 import path from "path";
 
@@ -17,6 +17,7 @@ const app = new Hono();
 // });
 
 app.route("/auth", authRoutes);
+app.route("/onboarding", onboardingRoutes);
 
 app.get("/", (c) => {
   return c.text("Hello Hono!");
