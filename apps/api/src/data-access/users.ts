@@ -1,9 +1,8 @@
-import { db, drizzleF, schema } from "@repo/db";
+import { db, eq, userTable, TUser } from "@repo/db";
 import { getRandomId } from "../lib/utils";
-import { userTable } from "@repo/db/src/schema";
 
 export const insterUser = async ({ email }: { email: string }) => {
-  const newUser = await db.insert(schema.userTable).values({
+  const newUser = await db.insert(userTable).values({
     email,
     id: getRandomId(),
   });
@@ -12,32 +11,24 @@ export const insterUser = async ({ email }: { email: string }) => {
 };
 
 export async function deleteUser(userId: string) {
-  await db
-    .delete(schema.userTable)
-    .where(drizzleF.eq(schema.userTable.id, userId));
+  await db.delete(userTable).where(eq(userTable.id, userId));
 }
 
 export async function getUser(userId: string) {
   const user = await db.query.userTable.findFirst({
-    where: drizzleF.eq(schema.userTable.id, userId),
+    where: eq(userTable.id, userId),
   });
 
   return user;
 }
 
-export async function updateUser(
-  userId: string,
-  updatedUser: Partial<schema.TUser>
-) {
-  await db
-    .update(userTable)
-    .set(updatedUser)
-    .where(drizzleF.eq(schema.userTable.id, userId));
+export async function updateUser(userId: string, updatedUser: Partial<TUser>) {
+  await db.update(userTable).set(updatedUser).where(eq(userTable.id, userId));
 }
 
 export async function getUserByEmail(email: string) {
   const user = await db.query.userTable.findFirst({
-    where: drizzleF.eq(schema.userTable.email, email),
+    where: eq(userTable.email, email),
   });
 
   return user;
@@ -45,7 +36,7 @@ export async function getUserByEmail(email: string) {
 
 export async function getMagicUserAccountByEmail(email: string) {
   const user = await db.query.userTable.findFirst({
-    where: drizzleF.eq(schema.userTable.email, email),
+    where: eq(userTable.email, email),
   });
 
   return user;
@@ -53,10 +44,10 @@ export async function getMagicUserAccountByEmail(email: string) {
 
 export async function createMagicUser(email: string) {
   const [user] = await db
-    .insert(schema.userTable)
+    .insert(userTable)
     .values({
       email,
-      emailVerified: new Date(),
+
       id: getRandomId(),
     })
     .returning();

@@ -1,21 +1,21 @@
 import {
   deleteMagicToken,
   getMagicLinkByToken,
-  setEmailVerified,
   upsertMagicLink,
 } from "../../data-access/magic-links";
 import { createMagicUser, getUserByEmail } from "../../data-access/users";
+import { getMagicLinkEmailTemplate } from "../../emails/magic-link-template";
 import { sendEmail } from "../../lib/resend";
 import { PublicError } from "../errors";
 
 export async function sendMagicLinkUseCase(email: string) {
   const token = await upsertMagicLink(email);
 
-  // await sendEmail(
-  //   email,
-  //   `Your magic login link for ${applicationName}`,
-  //   <MagicLinkEmail token={token} />
-  // );
+  await sendEmail(
+    email,
+    `Your magic login link for NEXTRI PROJECTS`,
+    getMagicLinkEmailTemplate({ token })
+  );
 }
 
 export async function loginWithMagicLinkUseCase(token: string) {
@@ -32,7 +32,6 @@ export async function loginWithMagicLinkUseCase(token: string) {
   const existingUser = await getUserByEmail(magicLinkInfo.email);
 
   if (existingUser) {
-    await setEmailVerified(existingUser.id);
     await deleteMagicToken(token);
     return existingUser;
   } else {
