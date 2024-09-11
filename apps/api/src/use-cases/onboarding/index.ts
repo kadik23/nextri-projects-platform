@@ -1,44 +1,15 @@
-import { OpenSourcePath, workPace } from "@repo/db/src/types";
-import { getUserOnboarding, insertUserOnboarding, updateUserOnboarding } from "../../data-access/onboarding"; 
-import { ProjectCategoryPreference } from "../../validations/types";
+import { insertUserOnboarding } from "../../data-access/onboarding"; 
 
 export async function registerOnboarding(
     data:
         {
             userId: string;
             role: string;
-            projectCategoryPreference: {
-                categoryPreference: ProjectCategoryPreference[];
-                focus: string[];
-                openSourcePath?: OpenSourcePath
-            };
+            projectCategoriesPreference: string[];
             skillLevel: string;
-            workPace: workPace;
+            workPace: string;
             technologies: string[];
         }
 ) {
-    return await insertUserOnboarding(data);
-}
-
-export async function getMyOnboardingData(userId:string) {
-    return await getUserOnboarding(userId);
-}
-
-export async function updateOnboardingData(
-    data:
-    {
-        userId: string,
-        projectCategoryPreference?: {
-            categoryPreference: ProjectCategoryPreference[];
-            focus: string[];
-            openSourcePath?: OpenSourcePath
-        };
-        skills?: {
-            role: string;
-            skillLevel: string;
-            technologies: string[];
-        }[],
-        workPace?: workPace;
-    }) {
-    return await updateUserOnboarding(data);
+    await insertUserOnboarding(data);
 }
