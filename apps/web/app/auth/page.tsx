@@ -7,6 +7,8 @@ import { Separator } from "@/components/ui/separator";
 import { useRouter } from "next/navigation";
 import MiniSpinner from "@/app/_components/MiniSpinner"
 import { getGithubRedirectUrl, getGoogleRedirectUrl, requestMagicLink } from "../_api/authFns";
+import toast from "react-hot-toast";
+import { displayErrorToast } from "../_lib/Toasts";
 
 
 const Signin: FC = () => {
@@ -50,10 +52,10 @@ const Signin: FC = () => {
       console.log("Magic link sent successfully!");
     }  else {
       
-      console.log("Failed to send magic link");
+      displayErrorToast("Failed to send magic link");
     }
      } catch(err) {
-      console.log(err);
+      displayErrorToast()
      }
      finally {
       setIsLoading(false)
@@ -71,7 +73,8 @@ const Signin: FC = () => {
     console.log(data); 
     router.push(data.url)
   } catch(err) {
-    console.log(err)
+
+    displayErrorToast()
      
   } finally {
     setIsLoggingWithGoogle(false)
@@ -86,7 +89,8 @@ const Signin: FC = () => {
     console.log(data); 
     router.push(data.url)
   } catch(err) {
-    console.log(err)
+
+  displayErrorToast()
      
   } finally {
     setIsLoggingWithGithub(false)
