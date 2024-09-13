@@ -3,14 +3,7 @@
 import { motion } from "framer-motion";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogFooter } from "@/components/ui/dialog";
 import {
   Form,
   FormControl,
@@ -26,31 +19,37 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Input } from "@/components/ui/input";
+
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
+import { MultiSelect } from "../multi-select";
+import { Option } from "@/types";
 
-m;
+import { ROLS, TECH_STACKS } from "@/config/data";
+
 const formSchema = z.object({
-  username: z.string().min(2).max(50),
   role: z.string(),
+  skills: z.string().array(),
 });
 
 export function OnboardingDialog() {
   const [formStep, setFormStep] = useState<number>(0);
   const [open, setOpen] = useState<boolean>(true);
 
+  //
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
-    defaultValues: {
-      username: "",
-    },
+    defaultValues: {},
   });
 
   function onSubmit(values: z.infer<typeof formSchema>) {
     console.log(values); // Handle form submission (e.g., API call)
   }
+  // watch the value of the role
+
+  // display the options acordanlly
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -65,6 +64,7 @@ export function OnboardingDialog() {
           <form
             onSubmit={form.handleSubmit(onSubmit)}
             className="relative space-y-3 overflow-x-hidden  "
+            id="onboarding-form"
           >
             {/* Step 1 */}
             {formStep === 0 && (
@@ -74,7 +74,7 @@ export function OnboardingDialog() {
                 exit={{ opacity: 0 }}
                 className="space-y-3"
               >
-                <div className="w-full min-h-[300px] h-fit px-4">
+                <div className="w-full min-h-[300px] h-fit px-4 flex flex-col gap-y-4">
                   <FormField
                     control={form.control}
                     name="role"
@@ -91,17 +91,37 @@ export function OnboardingDialog() {
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent>
-                            <SelectItem value="m@example.com">
-                              m@example.com
-                            </SelectItem>
-                            <SelectItem value="m@google.com">
-                              m@google.com
-                            </SelectItem>
-                            <SelectItem value="m@support.com">
-                              m@support.com
-                            </SelectItem>
+                            {ROLS.map((item) => {
+                              return (
+                                <SelectItem value={item.value}>
+                                  {item.label}
+                                </SelectItem>
+                              );
+                            })}
                           </SelectContent>
                         </Select>
+
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="skills"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Select your role </FormLabel>
+
+                        <FormControl>
+                          <MultiSelect
+                            options={TECH_STACKS}
+                            onValueChange={field.onChange}
+                            defaultValue={field.value}
+                            placeholder="Select frameworks"
+                            animation={0}
+                            maxCount={4}
+                          />
+                        </FormControl>
 
                         <FormMessage />
                       </FormItem>
@@ -161,7 +181,11 @@ export function OnboardingDialog() {
 
               {/* Submit Button (only shows on final step) */}
               {formStep === 2 && (
-                <Button type="submit" className="btn-primary">
+                <Button
+                  type="submit"
+                  form="onboarding-form"
+                  className="btn-primary"
+                >
                   Submit
                 </Button>
               )}
