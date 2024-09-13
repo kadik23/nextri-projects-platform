@@ -1,4 +1,5 @@
 import { pgEnum, pgTable, text, timestamp, uuid } from "drizzle-orm/pg-core";
+import {OpenSourcePath, ProjectCategoryPreference, workPace} from "./types"
 
 export const accountTypeEnum = pgEnum("type", ["email", "google", "github"]);
 
@@ -37,29 +38,33 @@ export const magicLinksTable = pgTable("magic_links", {
   tokenExpiresAt: timestamp("tokenExpiresAt", { mode: "date" }),
 });
 
-export const userOnboardingTable = pgTable("user_onboarding", {
+export const userProfileTable = pgTable("user_profile", {
   id: uuid("id").primaryKey().defaultRandom(),
   userId: text("user_id").notNull().references(() => userTable.id),
+  workPace: text("work_pace").$type<workPace>().notNull(),
+  openSourcePath: text("open_source_path"),
   updatedAt: timestamp("updated_at"),
+})
+
+export const skillTable = pgTable("skill", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  profileId: uuid("profile_id").notNull().references(() => userProfileTable.id, {onDelete: 'cascade'}),
   role: text("role").notNull(),
   skillLevel: text("skill_level").notNull(),
-  workPace: text("work_pace").notNull(),
-
+  technologies: text("technologies").array().notNull(),
+  updatedAt: timestamp("updated_at"),
 })
 
-export const projectCategoryPreferenceTable = pgTable("project_category_preference", {
+export const projectCategoryPreferenceTable = pgTable("project_category_preference",{
   id: uuid("id").primaryKey().defaultRandom(),
-  userOnboardingId: uuid("user_onboarding_id").notNull().references(() => userOnboardingTable.id, {onDelete: 'cascade'}),
-  name: text("name").notNull()
+  categoryPreference: text("category_preference").$type<ProjectCategoryPreference>().array().notNull(),
+  focus: text("focus").array().notNull(),
+  openSourcePath: text("open_source_path").$type<OpenSourcePath>(),
+  profileId: uuid("profile_id").notNull().references(() => userProfileTable.id, {onDelete: 'cascade'}),
+  updatedAt: timestamp("updated_at"),
 })
 
-export const technologyTable = pgTable("technology", {
-  id: uuid("id").primaryKey().defaultRandom(),
-  userOnboardingId: uuid("user_onboarding_id").notNull().references(() => userOnboardingTable.id, {onDelete: 'cascade'}),
-  name: text("name").notNull()
-})
-
-export const profilesTable = pgTable("profile", {
+export const userDetailsTable = pgTable("user_detail", {
   id: text("id").primaryKey(),
   userId: text("userId")
     .notNull()
@@ -73,4 +78,5 @@ export const profilesTable = pgTable("profile", {
 // types
 
 export type TUser = typeof userTable.$inferSelect;
-export type TProfile = typeof profilesTable.$inferSelect;
+export type TUserDetails = typeof userDetailsTable.$inferSelect;
+export type TProfile = typeof userProfileTable.$inferSelect;

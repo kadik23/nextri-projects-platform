@@ -1,9 +1,121 @@
 {
-  "id": "4256dffe-8091-4589-9ea0-970a703b66de",
-  "prevId": "6c24f16c-fa91-4139-a685-5579e6989e4b",
+  "id": "38451586-8de1-4e61-bed5-628ba8485a3b",
+  "prevId": "219715d9-9078-4954-9af7-db3e02ef0c17",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
+    "public.account": {
+      "name": "account",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "userId": {
+          "name": "userId",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "accountType": {
+          "name": "accountType",
+          "type": "type",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "githubId": {
+          "name": "githubId",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "googleId": {
+          "name": "googleId",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "account_userId_user_id_fk": {
+          "name": "account_userId_user_id_fk",
+          "tableFrom": "account",
+          "tableTo": "user",
+          "columnsFrom": [
+            "userId"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "account_githubId_unique": {
+          "name": "account_githubId_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "githubId"
+          ]
+        },
+        "account_googleId_unique": {
+          "name": "account_googleId_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "googleId"
+          ]
+        }
+      }
+    },
+    "public.magic_links": {
+      "name": "magic_links",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "email": {
+          "name": "email",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "token": {
+          "name": "token",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "tokenExpiresAt": {
+          "name": "tokenExpiresAt",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "magic_links_email_unique": {
+          "name": "magic_links_email_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "email"
+          ]
+        }
+      }
+    },
     "public.project_category_preference": {
       "name": "project_category_preference",
       "schema": "",
@@ -15,27 +127,45 @@
           "notNull": true,
           "default": "gen_random_uuid()"
         },
-        "user_onboarding_id": {
-          "name": "user_onboarding_id",
+        "category_preference": {
+          "name": "category_preference",
+          "type": "text[]",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "focus": {
+          "name": "focus",
+          "type": "text[]",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "open_source_path": {
+          "name": "open_source_path",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "profile_id": {
+          "name": "profile_id",
           "type": "uuid",
           "primaryKey": false,
           "notNull": true
         },
-        "name": {
-          "name": "name",
-          "type": "text",
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp",
           "primaryKey": false,
-          "notNull": true
+          "notNull": false
         }
       },
       "indexes": {},
       "foreignKeys": {
-        "project_category_preference_user_onboarding_id_user_onboarding_id_fk": {
-          "name": "project_category_preference_user_onboarding_id_user_onboarding_id_fk",
+        "project_category_preference_profile_id_user_profile_id_fk": {
+          "name": "project_category_preference_profile_id_user_profile_id_fk",
           "tableFrom": "project_category_preference",
-          "tableTo": "user_onboarding",
+          "tableTo": "user_profile",
           "columnsFrom": [
-            "user_onboarding_id"
+            "profile_id"
           ],
           "columnsTo": [
             "id"
@@ -89,8 +219,8 @@
       "compositePrimaryKeys": {},
       "uniqueConstraints": {}
     },
-    "public.technology": {
-      "name": "technology",
+    "public.skill": {
+      "name": "skill",
       "schema": "",
       "columns": {
         "id": {
@@ -100,27 +230,45 @@
           "notNull": true,
           "default": "gen_random_uuid()"
         },
-        "user_onboarding_id": {
-          "name": "user_onboarding_id",
+        "profile_id": {
+          "name": "profile_id",
           "type": "uuid",
           "primaryKey": false,
           "notNull": true
         },
-        "name": {
-          "name": "name",
+        "role": {
+          "name": "role",
           "type": "text",
           "primaryKey": false,
           "notNull": true
+        },
+        "skill_level": {
+          "name": "skill_level",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "technologies": {
+          "name": "technologies",
+          "type": "text[]",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false
         }
       },
       "indexes": {},
       "foreignKeys": {
-        "technology_user_onboarding_id_user_onboarding_id_fk": {
-          "name": "technology_user_onboarding_id_user_onboarding_id_fk",
-          "tableFrom": "technology",
-          "tableTo": "user_onboarding",
+        "skill_profile_id_user_profile_id_fk": {
+          "name": "skill_profile_id_user_profile_id_fk",
+          "tableFrom": "skill",
+          "tableTo": "user_profile",
           "columnsFrom": [
-            "user_onboarding_id"
+            "profile_id"
           ],
           "columnsTo": [
             "id"
@@ -132,8 +280,71 @@
       "compositePrimaryKeys": {},
       "uniqueConstraints": {}
     },
-    "public.user_onboarding": {
-      "name": "user_onboarding",
+    "public.user_detail": {
+      "name": "user_detail",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "userId": {
+          "name": "userId",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "displayName": {
+          "name": "displayName",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "imageId": {
+          "name": "imageId",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "bio": {
+          "name": "bio",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "''"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "user_detail_userId_user_id_fk": {
+          "name": "user_detail_userId_user_id_fk",
+          "tableFrom": "user_detail",
+          "tableTo": "user",
+          "columnsFrom": [
+            "userId"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "user_detail_userId_unique": {
+          "name": "user_detail_userId_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "userId"
+          ]
+        }
+      }
+    },
+    "public.user_profile": {
+      "name": "user_profile",
       "schema": "",
       "columns": {
         "id": {
@@ -149,36 +360,30 @@
           "primaryKey": false,
           "notNull": true
         },
-        "updated_at": {
-          "name": "updated_at",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "role": {
-          "name": "role",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "skill_level": {
-          "name": "skill_level",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
         "work_pace": {
           "name": "work_pace",
           "type": "text",
           "primaryKey": false,
           "notNull": true
+        },
+        "open_source_path": {
+          "name": "open_source_path",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false
         }
       },
       "indexes": {},
       "foreignKeys": {
-        "user_onboarding_user_id_user_id_fk": {
-          "name": "user_onboarding_user_id_user_id_fk",
-          "tableFrom": "user_onboarding",
+        "user_profile_user_id_user_id_fk": {
+          "name": "user_profile_user_id_user_id_fk",
+          "tableFrom": "user_profile",
           "tableTo": "user",
           "columnsFrom": [
             "user_id"
@@ -209,12 +414,6 @@
           "primaryKey": false,
           "notNull": false
         },
-        "emailVerified": {
-          "name": "emailVerified",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": false
-        },
         "created_at": {
           "name": "created_at",
           "type": "timestamp",
@@ -242,7 +441,17 @@
       }
     }
   },
-  "enums": {},
+  "enums": {
+    "public.type": {
+      "name": "type",
+      "schema": "public",
+      "values": [
+        "email",
+        "google",
+        "github"
+      ]
+    }
+  },
   "schemas": {},
   "sequences": {},
   "_meta": {
