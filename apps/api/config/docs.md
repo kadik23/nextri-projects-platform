@@ -217,13 +217,18 @@ getOnboardingData(userId).catch((err) => console.error(err));
 import fetch from "node-fetch";
 
 async function createOnboarding(userId: string, data: {
+  userId: string,
   role: string,
   skillLevel: string,
   workPace: string,
   technologies: string[],
-  projectCategoriesPreference: string[]
+  projectCategoryPreference?: {
+    categoryPreference: ProjectCategoryPreference[];
+    focus: string[];
+    openSourcePath?: OpenSourcePath
+  };
 }): Promise<void> {
-  const response = await fetch(`http://localhost:3001/onboarding/${userId}`, {
+  const response = await fetch(`http://localhost:3001/onboarding`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -241,14 +246,18 @@ async function createOnboarding(userId: string, data: {
 
 // Usage
 const data = {
+  userId = "your-user-id",
   role: "Developer",
   skillLevel: "Intermediate",
-  workPace: "Moderate",
+  workPace: "Short-term,
   technologies: ["Node.js", "React"],
-  projectCategoriesPreference: ["freelance", "open source"]
+  projectCategoriesPreference: {
+    categoryPreference: ["freelance", "open source"],
+    focus: ["crm"],
+    openSourcePath: "rebuild projects",
+  }
 };
-const userId = "your-user-id";
-createOnboarding(userId, data).catch((err) => console.error(err));
+createOnboarding(data).catch((err) => console.error(err));
 
 ```
 
@@ -263,7 +272,11 @@ async function updateOnboarding(userId: string, data: {
   skillLevel?: string,
   workPace?: string,
   technologies?: string[],
-  projectCategoriesPreference?: string[]
+  projectCategoryPreference?: {
+    categoryPreference: ProjectCategoryPreference[];
+    focus: string[];
+    openSourcePath?: OpenSourcePath
+  };
 }): Promise<void> {
   const response = await fetch(`http://localhost:3001/onboarding/${userId}`, {
     method: "PUT",
@@ -284,9 +297,24 @@ async function updateOnboarding(userId: string, data: {
 // Usage
 const userId = "your-user-id";
 const updateData = {
-  role: "Fullstack Developer",
-  technologies: ["React", "TypeScript"],
-  workPace: "Fast"
+    projectCategoryPreference:{
+        categoryPreference: ["open source"],
+        focus:["crm","ai"],
+        openSourcePath: "rebuild projects"
+    },
+    workPace: "Long-term",
+    skills: [
+      {
+      skillLevel: "Intermediate",
+      technologies: ["laravel", "hono js"],
+      role: "backend"
+      },
+      {
+      skillLevel: "Intermediate",
+      technologies: ["svelte js", "tailwind"],
+      role:"frontend"
+      }
+    ]
 };
 updateOnboarding(userId, updateData).catch((err) => console.error(err));
 

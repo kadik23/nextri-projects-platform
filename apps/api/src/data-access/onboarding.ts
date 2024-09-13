@@ -1,144 +1,166 @@
 import { db, } from "@repo/db/src";
 import { eq, } from "@repo/db/src/drizzle-functions";
-import { projectCategoryPreferenceTable, technologyTable, userOnboardingTable } from "@repo/db";
+import { skillTable, userProfileTable, projectCategoryPreferenceTable } from "@repo/db";
+import { ProjectCategoryPreference, workPace } from "../validations/types";
+import { OpenSourcePath } from "@repo/db/src/types";
 
 export const insertUserOnboarding = async ({
     userId,
     role,
-    projectCategoriesPreference,
     skillLevel,
     workPace,
+    projectCategoryPreference,
     technologies,
 }: {
     userId: string;
     role: string;
-    projectCategoriesPreference: string[];
+    projectCategoryPreference: {
+        categoryPreference: ProjectCategoryPreference[];
+        focus: string[];
+        openSourcePath?: OpenSourcePath;
+    };
     skillLevel: string;
-    workPace: string;
+    workPace: workPace;
     technologies: string[];
 }) => {
-    // Insert into userOnboardingTable
-    const [newUserOnboarding] = await db.insert(userOnboardingTable).values({
+
+    // Insert into userProfileTable
+    const [newUserProfile] = await db.insert(userProfileTable).values({
         userId,
-        role,
-        skillLevel,
         workPace,
-    }).returning({ id: userOnboardingTable.id });
+    }).returning({ id: userProfileTable.id });
 
-    if (newUserOnboarding) {
-        const userOnboardingId = newUserOnboarding.id;
+    if (newUserProfile) {
+        const profileId = newUserProfile.id;
 
+        // Insert into skillTable
+        const [newSkillTable] = await db.insert(skillTable).values({
+            profileId,
+            role,
+            technologies,
+            skillLevel
+        }).returning({ id: skillTable.id });
         // Insert into projectCategoryPreferenceTable
-        if (projectCategoriesPreference.length > 0) {
-            await db.insert(projectCategoryPreferenceTable).values(
-                projectCategoriesPreference.map(category => ({
-                    userOnboardingId,
-                    name: category,
-                }))
-            );
+        if (newSkillTable) {
+            await db.insert(projectCategoryPreferenceTable).values({
+                profileId,
+                categoryPreference: projectCategoryPreference.categoryPreference,
+                focus: projectCategoryPreference.focus,
+                openSourcePath: (
+                    projectCategoryPreference.categoryPreference.includes('open source') &&
+                        projectCategoryPreference.openSourcePath
+                        ? projectCategoryPreference.openSourcePath
+                        : null
+                )
+            });
         }
 
-        // Insert into technologyTable
-        if (technologies.length > 0) {
-            await db.insert(technologyTable).values(
-                technologies.map(tech => ({
-                    userOnboardingId,
-                    name: tech,
-                }))
-            );
-        }
     } else {
         console.log("Something went wrong")
     }
 
-    return newUserOnboarding;
+    return newUserProfile;
 };
 
 export const getUserOnboarding = async (userId: string) => {
 
-    const userOnboarding = await db.query.userOnboardingTable.findFirst({
-        where: eq(userOnboardingTable.userId, userId),
+    const userOnboarding = await db.query.userProfileTable.findFirst({
+        where: eq(userProfileTable.userId, userId),
     });
-
+    let project_category_preference, skills
     if (!userOnboarding) {
         throw new Error('User onboarding not found');
+    } else {
+        skills = await db.query.skillTable.findMany({
+            where: eq(skillTable.profileId, userOnboarding.id),
+        });
+
+        project_category_preference = await db.query.projectCategoryPreferenceTable.findMany({
+            where: eq(projectCategoryPreferenceTable.profileId, userOnboarding.id),
+        });
     }
 
-    // Fetch related project category preferences
-    const projectCategoriesPreference = await db.query.projectCategoryPreferenceTable.findFirst({
-        where: eq(projectCategoryPreferenceTable.userOnboardingId, userOnboarding.id),
-    });
-
-    // Fetch related technologies
-    const technologies = await db.query.technologyTable.findFirst({
-        where: eq(technologyTable.userOnboardingId, userOnboarding.id),
-    });
-
     return {
-        ...userOnboarding,
-        projectCategoriesPreference,
-        technologies,
+        ...userOnboarding, skills, project_category_preference
     };
 }
 
 export const updateUserOnboarding = async (
     updates: {
-        userId: string, role?: string; skillLevel?: string; workPace?: string; technologies?: string[], projectCategoriesPreference?: string[];
+        userId: string,
+        workPace?: workPace;
+        skills?: {
+            technologies: string[],
+            role: string;
+            skillLevel: string;
+        }[];
+        projectCategoryPreference?: {
+            categoryPreference: ProjectCategoryPreference[];
+            focus: string[];
+            openSourcePath?: OpenSourcePath
+        };
     }
 ) => {
     return await db.transaction(async (trx) => {
+        let updatedSkill: any[] = [], updatedProjectCategoryPreference;
         try {
-
             const existingOnboarding = await trx
                 .select()
-                .from(userOnboardingTable)
-                .where(eq(userOnboardingTable.userId, updates.userId))
+                .from(userProfileTable)
+                .where(eq(userProfileTable.userId, updates.userId))
                 .limit(1);
 
             if (!existingOnboarding || existingOnboarding.length === 0) {
                 throw new Error(`No onboarding record found for user ID ${updates.userId}`);
             }
 
-            const userOnboardingId = existingOnboarding[0]?.id;
+            const profileId = existingOnboarding[0]?.id;
 
-            const updatedOnboarding = await trx
-                .update(userOnboardingTable)
+            const updatedProfile = await trx
+                .update(userProfileTable)
                 .set({
-                    ...(updates.role && { role: updates.role }),
-                    ...(updates.skillLevel && { skillLevel: updates.skillLevel }),
                     ...(updates.workPace && { workPace: updates.workPace }),
+                    ...{ updatedAt: new Date() }
                 })
-                .where(eq(userOnboardingTable.userId, updates.userId))
+                .where(eq(userProfileTable.userId, updates.userId))
                 .returning();
 
 
-            if (updates.technologies) {
+            if (updates.skills && updates.skills.length > 0) {
                 await trx
-                    .delete(technologyTable)
-                    .where(eq(technologyTable.userOnboardingId, userOnboardingId as string)); 
+                    .delete(skillTable)
+                    .where(eq(skillTable.profileId, profileId as string));
 
-                for (const tech of updates.technologies) {
-                    await trx.insert(technologyTable).values({
-                        userOnboardingId: userOnboardingId as string,
-                        name: tech,
-                    });
+                for (const skill of updates.skills) {
+                    const insertedSkill = await trx.insert(skillTable).values({
+                        profileId: profileId as string,
+                        role: skill.role,
+                        technologies: (skill.technologies),
+                        skillLevel: skill.skillLevel
+                    }).returning();
+                    updatedSkill.push(insertedSkill);
                 }
+
             }
 
-            if (updates.projectCategoriesPreference) {
+            if (updates.projectCategoryPreference && updatedSkill) {
                 await trx
                     .delete(projectCategoryPreferenceTable)
-                    .where(eq(projectCategoryPreferenceTable.userOnboardingId, userOnboardingId as string));
+                    .where(eq(projectCategoryPreferenceTable.profileId, profileId as string));
 
-                for (const category of updates.projectCategoriesPreference) {
-                    await trx.insert(projectCategoryPreferenceTable).values({
-                        userOnboardingId: userOnboardingId as string,
-                        name: category,
-                    });
-                }
+                updatedProjectCategoryPreference = await trx.insert(projectCategoryPreferenceTable).values({
+                    profileId: profileId as string,
+                    categoryPreference: updates.projectCategoryPreference.categoryPreference,
+                    focus: updates.projectCategoryPreference.focus,
+                    openSourcePath: (
+                        updates.projectCategoryPreference.categoryPreference.includes('open source') &&
+                            updates.projectCategoryPreference.openSourcePath
+                            ? updates.projectCategoryPreference.openSourcePath
+                            : null
+                    )
+                }).returning()
             }
-
-            return updatedOnboarding;
+            return { ...updatedProfile, updatedProjectCategoryPreference, updatedSkill };
 
         } catch (error: any) {
             throw new Error(`Failed to update onboarding data: ${error.message}`);

@@ -1,3 +1,4 @@
+
 export type UserProfile = {
   id: UserId;
   name: string | null;
@@ -5,19 +6,6 @@ export type UserProfile = {
 };
 
 export type UserId = number;
-
-
-export type ProjectCategoryPreference = {
-  id?: string,
-  userOnboardingId: string,
-  name: string
-}
-
-export type Technology = {
-  id?: string,
-  userOnboardingId: string,
-  name: string
-}
 
 export interface GoogleUser {
   sub: string;
@@ -43,3 +31,6 @@ export interface Email {
   verified: boolean;
   visibility: string | null;
 }
+
+export type ProjectCategoryPreference = "freelance" | "open source" | "company"
+export type workPace = "Short-term" | "Medium-term" | "Long-term" | "Specific-task";
