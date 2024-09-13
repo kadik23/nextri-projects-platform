@@ -24,6 +24,159 @@ export const ROLS: Option[] = [
   },
 ];
 
+export const SKILLS_LEVELS: Option[] = [
+  {
+    label: "🔰 Beginner",
+    value: "beginner",
+  },
+  {
+    label: "🚀 Intermediate",
+    value: "intermediate",
+  },
+  {
+    label: "💼 Advanced",
+    value: "advanced",
+  },
+  {
+    label: "🌟 Expert",
+    value: "expert",
+  },
+  {
+    label: "🏆 Master",
+    value: "master",
+  },
+];
+
+export const PROJECT_TYPES: Option[] = [
+  {
+    label: "💼 Freelance",
+    value: "freelance",
+  },
+  {
+    label: "🌍 Open Source",
+    value: "open_source",
+  },
+  {
+    label: "🏢 Company Projects",
+    value: "company_projects",
+  },
+];
+
+export const PROJECT_FOCUS: Option[] = [
+  {
+    label: "API Platform",
+    value: "api_platform",
+  },
+  {
+    label: "Backend as a Service",
+    value: "backend_as_a_service",
+  },
+  {
+    label: "CRM",
+    value: "crm",
+  },
+  {
+    label: "Marketing",
+    value: "marketing",
+  },
+  {
+    label: "Form Building",
+    value: "form_building",
+  },
+  {
+    label: "Product Analytics",
+    value: "product_analytics",
+  },
+  {
+    label: "Scheduling",
+    value: "scheduling",
+  },
+  {
+    label: "Security",
+    value: "security",
+  },
+  {
+    label: "Workflow Automation",
+    value: "workflow_automation",
+  },
+  {
+    label: "Artificial Intelligence",
+    value: "artificial_intelligence",
+  },
+  {
+    label: "Commerce",
+    value: "commerce",
+  },
+  {
+    label: "Digital Signature",
+    value: "digital_signature",
+  },
+  {
+    label: "File Hosting",
+    value: "file_hosting",
+  },
+  {
+    label: "Internal Tools",
+    value: "internal_tools",
+  },
+  {
+    label: "Log Management",
+    value: "log_management",
+  },
+  {
+    label: "Messaging",
+    value: "messaging",
+  },
+  {
+    label: "Productivity",
+    value: "productivity",
+  },
+  {
+    label: "Website Builder",
+    value: "website_builder",
+  },
+  {
+    label: "Project Management",
+    value: "project_management",
+  },
+  {
+    label: "Observability",
+    value: "observability",
+  },
+  {
+    label: "Monitoring",
+    value: "monitoring",
+  },
+  {
+    label: "Financial Service",
+    value: "financial_service",
+  },
+  {
+    label: "Email",
+    value: "email",
+  },
+  {
+    label: "Database Management",
+    value: "database_management",
+  },
+  {
+    label: "CMS",
+    value: "cms",
+  },
+  {
+    label: "Communication",
+    value: "communication",
+  },
+  {
+    label: "Auth & SSO",
+    value: "auth_sso",
+  },
+  {
+    label: "Developer Tools",
+    value: "developer_tools",
+  },
+];
+
 export const PROJECT_DURATIONS: Option[] = [
   {
     label: "Short-term: 1-2 weeks",

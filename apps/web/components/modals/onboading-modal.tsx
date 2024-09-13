@@ -26,11 +26,22 @@ import { z } from "zod";
 import { MultiSelect } from "../multi-select";
 import { Option } from "@/types";
 
-import { ROLS, TECH_STACKS } from "@/config/data";
+import {
+  PROJECT_DURATIONS,
+  PROJECT_FOCUS,
+  PROJECT_TYPES,
+  ROLS,
+  SKILLS_LEVELS,
+  TECH_STACKS,
+} from "@/config/data";
 
 const formSchema = z.object({
   role: z.string(),
   skills: z.string().array(),
+  project_types: z.string().array(),
+  project_foucus: z.string().array(),
+  skill_level: z.string(),
+  work_pace: z.string(),
 });
 
 export function OnboardingDialog() {
@@ -53,17 +64,11 @@ export function OnboardingDialog() {
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogContent className="w-[500px] h-[550px]  flex flex-col justify-between  pt-4 ">
-        <div className="w-full h-[60px] flex flex-col gap-y-1 items-start justify-center px-4 ">
-          <p className="text-gray-500 text-lg">Quastion 1 of 4</p>
-          <h1 className="text-2xl font-bold">
-            Role and Technology Stack Selection
-          </h1>
-        </div>
+      <DialogContent className="w-[500px] h-[550px]  pt-4 ">
         <Form {...form}>
           <form
             onSubmit={form.handleSubmit(onSubmit)}
-            className="relative space-y-3 overflow-x-hidden  "
+            className="relative space-y-3 overflow-x-hidden flex flex-col justify-between "
             id="onboarding-form"
           >
             {/* Step 1 */}
@@ -72,8 +77,14 @@ export function OnboardingDialog() {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
-                className="space-y-3"
+                className="h-fit flex flex-col gap-y-4"
               >
+                <div className="w-full h-[60px] flex flex-col gap-y-1 items-start justify-center px-4 ">
+                  <p className="text-blue-500 text-sm">Quastion 1 of 4</p>
+                  <h1 className="text-xl font-bold">
+                    Role and Technology Stack Selection
+                  </h1>
+                </div>
                 <div className="w-full min-h-[300px] h-fit px-4 flex flex-col gap-y-4">
                   <FormField
                     control={form.control}
@@ -137,9 +148,77 @@ export function OnboardingDialog() {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
-                className="space-y-3"
+                className="space-y-8"
               >
-                <div className="w-full h-[300px] "></div>
+                <div className="w-full h-[60px] flex flex-col gap-y-1 items-start justify-center px-4 ">
+                  <p className="text-blue-500 text-sm">Quastion 2 of 4</p>
+                  <h1 className="text-2xl font-bold">
+                    Skill Level and Work Pace Selection
+                  </h1>
+                </div>
+                <div className="w-full min-h-[300px] h-fit px-4 flex flex-col gap-y-4">
+                  <FormField
+                    control={form.control}
+                    name="skill_level"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Select your role </FormLabel>
+                        <Select
+                          onValueChange={field.onChange}
+                          defaultValue={field.value}
+                        >
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select a verified email to display" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            {SKILLS_LEVELS.map((item) => {
+                              return (
+                                <SelectItem value={item.value}>
+                                  {item.label}
+                                </SelectItem>
+                              );
+                            })}
+                          </SelectContent>
+                        </Select>
+
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="work_pace"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Select your role </FormLabel>
+                        <Select
+                          onValueChange={field.onChange}
+                          defaultValue={field.value}
+                        >
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select a verified email to display" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            {PROJECT_DURATIONS.map((item) => {
+                              return (
+                                <SelectItem value={item.value}>
+                                  {item.label}
+                                </SelectItem>
+                              );
+                            })}
+                          </SelectContent>
+                        </Select>
+
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
               </motion.div>
             )}
 
@@ -149,14 +228,66 @@ export function OnboardingDialog() {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
-                className="space-y-3"
+                className="space-y-8"
               >
-                <div className="w-full h-[300px] "></div>
+                <div className="w-full h-[60px] flex flex-col gap-y-1 items-start justify-center px-4 ">
+                  <p className="text-blue-500 text-sm">Quastion 3 of 4</p>
+                  <h1 className="text-2xl font-bold">
+                    Project Category Preferences
+                  </h1>
+                </div>
+                <div className="w-full min-h-[300px] h-fit px-4 flex flex-col gap-y-4">
+                  <FormField
+                    control={form.control}
+                    name="project_types"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Select your role </FormLabel>
+
+                        <FormControl>
+                          <MultiSelect
+                            options={PROJECT_TYPES}
+                            onValueChange={field.onChange}
+                            defaultValue={field.value}
+                            placeholder="Select frameworks"
+                            animation={0}
+                            maxCount={4}
+                          />
+                        </FormControl>
+
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="project_foucus"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Select your role </FormLabel>
+
+                        <FormControl>
+                          <MultiSelect
+                            options={PROJECT_FOCUS}
+                            onValueChange={field.onChange}
+                            defaultValue={field.value}
+                            placeholder="Select frameworks"
+                            animation={0}
+                            maxCount={4}
+                          />
+                        </FormControl>
+
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
               </motion.div>
             )}
 
             {/* Dialog Footer: Navigation Buttons */}
-            <DialogFooter className="flex justify-end items-center gap-x-4  h-[100px] bg-zinc-200 px-4">
+            <DialogFooter className="flex justify-end items-center gap-x-4 mt-auto  h-[100px] bg-zinc-100 px-4">
               {/* Go Back Button */}
               {formStep > 0 && (
                 <Button

@@ -206,6 +206,7 @@ export const MultiSelect = React.forwardRef<
                     {selectedValues.slice(0, maxCount).map((value) => {
                       const option = options.find((o) => o.value === value);
                       const IconComponent = option?.icon;
+
                       return (
                         <Badge
                           key={value}
