@@ -4,7 +4,7 @@ import { createId } from "@paralleldrive/cuid2";
 import { ProjectCategoryPreference, Technology } from "../validations/types";
 
 export const insterUser = async ({ email }: { email: string }) => {
-  const newUser = await db.insert(userTable).values({
+  const [newUser] = await db.insert(userTable).values({
     email,
     id: createId(),
   });
