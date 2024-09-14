@@ -5,10 +5,7 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-function myFetch<za3ma>(
-  url: string,
-  options: RequestInit = {}
-): Promise<za3ma> {
+export function fetcher<A>(url: string, options: RequestInit = {}): Promise<A> {
   return new Promise((resolve, reject) => {
     fetch(url, options)
       .then((response) => {
@@ -17,11 +14,11 @@ function myFetch<za3ma>(
         }
         return response.json();
       })
-      .then((data: za3ma) => resolve(data))
+      .then((data: A) => resolve(data))
       .catch((error) => reject(error));
   });
 }
 
-// simpleFetch<any>('https://api.example.com/data')
+// fetcher<any>('https://api.example.com/data')
 //   .then(data => console.log(data))
 //   .catch(error => console.error(error));

@@ -1,9 +1,15 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogFooter } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import {
   Form,
   FormControl,
@@ -51,10 +57,33 @@ export function OnboardingDialog() {
   const [formStep, setFormStep] = useState<number>(0);
   const [open, setOpen] = useState<boolean>(true);
 
+  const [isEnabled, setIsEnabled] = useState<boolean>(true);
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {},
   });
+
+  useEffect(() => {
+    const isNextButtonDisabled = (): boolean => {
+      if (formStep === 0) {
+        return !form.watch("role") || form.watch("skills")?.length === 0;
+      }
+      if (formStep === 1) {
+        return !form.watch("skill_level") || !form.watch("work_pace");
+      }
+      if (formStep === 2) {
+        return !(
+          form.watch("project_types")?.length &&
+          form.watch("project_foucus")?.length &&
+          form.watch("work_types")?.length
+        );
+      }
+      return false;
+    };
+
+    setIsEnabled(isNextButtonDisabled());
+  }, [formStep, form.formState]);
 
   function onSubmit(values: z.infer<typeof formSchema>) {
     console.log(values); // Handle form submission (e.g., API call)
@@ -66,6 +95,9 @@ export function OnboardingDialog() {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogContent className="w-[500px] min-h-[550px] h-fit  pt-4  ">
+        <DialogHeader className="p-4">
+          <DialogTitle>We've got some onboarding questions</DialogTitle>
+        </DialogHeader>
         <Form {...form}>
           <form
             onSubmit={form.handleSubmit(onSubmit)}
@@ -105,7 +137,7 @@ export function OnboardingDialog() {
                           <SelectContent>
                             {ROLS.map((item) => {
                               return (
-                                <SelectItem value={item.value}>
+                                <SelectItem key={item.value} value={item.value}>
                                   {item.label}
                                 </SelectItem>
                               );
@@ -131,7 +163,7 @@ export function OnboardingDialog() {
                             options={TECH_STACKS}
                             onValueChange={field.onChange}
                             defaultValue={field.value}
-                            placeholder="Select frameworks"
+                            placeholder="Select a techstack"
                             animation={0}
                             maxCount={4}
                           />
@@ -178,7 +210,7 @@ export function OnboardingDialog() {
                           <SelectContent>
                             {SKILLS_LEVELS.map((item) => {
                               return (
-                                <SelectItem value={item.value}>
+                                <SelectItem key={item.value} value={item.value}>
                                   {item.label}
                                 </SelectItem>
                               );
@@ -211,7 +243,7 @@ export function OnboardingDialog() {
                           <SelectContent>
                             {PROJECT_DURATIONS.map((item) => {
                               return (
-                                <SelectItem value={item.value}>
+                                <SelectItem key={item.value} value={item.value}>
                                   {item.label}
                                 </SelectItem>
                               );
@@ -279,7 +311,7 @@ export function OnboardingDialog() {
                             options={PROJECT_FOCUS}
                             onValueChange={field.onChange}
                             defaultValue={field.value}
-                            placeholder="Select frameworks"
+                            placeholder="Select your type"
                             animation={0}
                             maxCount={4}
                           />
@@ -348,6 +380,7 @@ export function OnboardingDialog() {
 
                         return (
                           <Badge
+                            key={item}
                             className={cn(
                               "bg-transparent w-fit text-black border-black hover:bg-transparent p-1"
                             )}
@@ -391,6 +424,7 @@ export function OnboardingDialog() {
 
                         return (
                           <Badge
+                            key={item}
                             className={cn(
                               "bg-transparent w-fit text-black border-black hover:bg-transparent p-1"
                             )}
@@ -411,6 +445,7 @@ export function OnboardingDialog() {
 
                         return (
                           <Badge
+                            key={item}
                             className={cn(
                               "bg-transparent w-fit text-black border-black hover:bg-transparent p-1"
                             )}
@@ -443,6 +478,7 @@ export function OnboardingDialog() {
                 <Button
                   type="button"
                   variant="default"
+                  disabled={isEnabled}
                   onClick={() => setFormStep(formStep + 1)}
                 >
                   Next Step
