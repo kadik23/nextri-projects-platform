@@ -1,3 +1,6 @@
+import { BASE_URL } from "@/config/application";
+import { fetcher } from "@/lib/utils";
+
 interface MagicLinkResponse {
   success: boolean;
 }
@@ -81,3 +84,16 @@ export async function getGithubRedirectUrl(): Promise<
     console.error(err);
   }
 }
+
+export const signOut = async () => {
+  try {
+    const response = await fetcher(`${BASE_URL}/auth/logout`, {
+      method: "GET",
+      credentials: "include",
+    });
+    console.log("this is the response we got");
+    console.log(response);
+  } catch (err) {
+    console.log(err);
+  }
+};

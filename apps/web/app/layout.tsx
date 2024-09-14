@@ -1,8 +1,9 @@
+import Providers from "@/components/Providers";
 import "./_styles/globals.css";
 import type { Metadata } from "next";
-import { Roboto } from "next/font/google";
+import { Poppins } from "next/font/google";
 
-const roboto = Roboto({
+const roboto = Poppins({
   subsets: ["latin"],
   weight: ["100", "300", "500", "700", "900"],
 });
@@ -21,7 +22,9 @@ export default function RootLayout({
 }): JSX.Element {
   return (
     <html lang="en">
-      <body className={roboto.className}>{children}</body>
+      <body className={roboto.className}>
+        <Providers>{children}</Providers>
+      </body>
     </html>
   );
 }

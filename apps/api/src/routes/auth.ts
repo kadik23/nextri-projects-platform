@@ -57,6 +57,7 @@ auth.get("/magic/:token", async (c) => {
 
     setCookie(c, sessionCookie.name, sessionCookie.value, {
       ...sessionCookie.attributes,
+      path: "/",
       maxAge: 60 * 60 * 24 * 30,
     });
 
@@ -70,6 +71,7 @@ auth.get("/magic/:token", async (c) => {
 
 auth.get("/logout", async (c) => {
   const userId = await getUserId(c);
+  const sessionId = getCookie(c, "auth_session");
 
   if (!userId) {
     return c.json({ success: false });
@@ -82,6 +84,7 @@ auth.get("/logout", async (c) => {
 
   setCookie(c, sessionCookie.name, sessionCookie.value, {
     ...sessionCookie.attributes,
+    path: "/",
     maxAge: 60 * 60 * 24 * 30,
   });
 
@@ -168,6 +171,7 @@ auth.get("/google-callback", async (c) => {
       setCookie(c, sessionCookie.name, sessionCookie.value, {
         ...sessionCookie.attributes,
         maxAge: 60 * 60 * 24 * 30,
+        path: "/",
       });
       return c.redirect("http://localhost:3000");
     }
@@ -179,6 +183,7 @@ auth.get("/google-callback", async (c) => {
     setCookie(c, sessionCookie.name, sessionCookie.value, {
       ...sessionCookie.attributes,
       maxAge: 60 * 60 * 24 * 30,
+      path: "/",
     });
     return c.redirect("http://localhost:3000");
   } catch (e) {
@@ -246,6 +251,7 @@ auth.get("/github-callback", async (c) => {
       setCookie(c, sessionCookie.name, sessionCookie.value, {
         ...sessionCookie.attributes,
         maxAge: 60 * 60 * 24 * 30,
+        path: "/",
       });
       return c.redirect("http://localhost:3000");
     }
@@ -270,6 +276,7 @@ auth.get("/github-callback", async (c) => {
     setCookie(c, sessionCookie.name, sessionCookie.value, {
       ...sessionCookie.attributes,
       maxAge: 60 * 60 * 24 * 30,
+      path: "/",
     });
     return c.redirect("http://localhost:3000");
   } catch (e) {
