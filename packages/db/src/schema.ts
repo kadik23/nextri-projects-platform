@@ -44,7 +44,6 @@ export const userProfileTable = pgTable("user_profile", {
     .notNull()
     .references(() => userTable.id),
   workPace: text("work_pace").$type<workPace>().notNull(),
-  openSourcePath: text("open_source_path"),
   updatedAt: timestamp("updated_at"),
 });
 
