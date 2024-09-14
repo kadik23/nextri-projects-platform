@@ -4,6 +4,7 @@ import {
   getAccountByGithubId,
   getAccountByGoogleId,
 } from "../../data-access/accounts";
+import { deleteSessionForUser } from "../../data-access/sessions";
 import { getUserByEmail, insterUser } from "../../data-access/users";
 import { GitHubUser, GoogleUser } from "../../validations/types";
 
@@ -37,4 +38,8 @@ export async function createGithubUserUseCase(githubUser: GitHubUser) {
   await createAccountViaGithub(existingUser?.id!, githubUser.id);
 
   return existingUser?.id!;
+}
+
+export async function invalidateSessionsUseCase(id: string) {
+  await deleteSessionForUser(id);
 }

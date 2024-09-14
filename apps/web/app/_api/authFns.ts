@@ -36,35 +36,48 @@ export async function requestMagicLink(
 
 ////////////////////////
 
-export async function getGoogleRedirectUrl(): Promise<GoogleRedirectResponse> {
-  const response = await fetch(
-    "http://localhost:3001/auth/google-redirect-url",
-    {
-      method: "GET",
-    }
-  );
+export async function getGoogleRedirectUrl(): Promise<
+  GoogleRedirectResponse | undefined
+> {
+  try {
+    const response = await fetch(
+      "http://localhost:3001/auth/google-redirect-url",
+      {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+      }
+    );
 
-  if (!response.ok) {
-    throw new Error("Failed to get Google redirect URL");
+    const data: GoogleRedirectResponse = await response.json();
+    console.log(data);
+    return data;
+  } catch (err) {
+    console.log(err);
   }
-
-  const data: GoogleRedirectResponse = await response.json();
-  console.log(data);
-  return data;
 }
 
-export async function getGithubRedirectUrl(): Promise<GithubRedirectResponse> {
-  const response = await fetch(
-    "http://localhost:3001/auth/github-redirect-url",
-    {
-      method: "GET",
+export async function getGithubRedirectUrl(): Promise<
+  GithubRedirectResponse | undefined
+> {
+  try {
+    const response = await fetch(
+      "http://localhost:3001/auth/github-redirect-url",
+      {
+        method: "GET",
+        credentials: "include",
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error("Failed to get GitHub redirect URL");
     }
-  );
 
-  if (!response.ok) {
-    throw new Error("Failed to get GitHub redirect URL");
+    const data: GithubRedirectResponse = await response.json();
+    return data;
+  } catch (err) {
+    console.error(err);
   }
-
-  const data: GithubRedirectResponse = await response.json();
-  return data;
 }

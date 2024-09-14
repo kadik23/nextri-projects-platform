@@ -11,7 +11,6 @@ import {
   getGoogleRedirectUrl,
   requestMagicLink,
 } from "../_api/authFns";
-import toast from "react-hot-toast";
 import { displayErrorToast } from "../_lib/Toasts";
 
 const Signin: FC = () => {
@@ -68,29 +67,36 @@ const Signin: FC = () => {
       setErrorMessage("Invalid email address");
     }
   };
-  ////////
+
   const handleGoogleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoggingWithGoogle(true);
     try {
       const data = await getGoogleRedirectUrl();
+      console.log("this is what we get from google sign in");
       console.log(data);
-      router.push(data.url);
+      if (data) {
+        router.push(data?.url);
+      }
     } catch (err) {
+      console.error(err);
       displayErrorToast();
     } finally {
       setIsLoggingWithGoogle(false);
     }
   };
-  ///////
+
   const handleGithubLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoggingWithGithub(true);
     try {
       const data = await getGithubRedirectUrl();
       console.log(data);
-      router.push(data.url);
+      if (data) {
+        router.push(data?.url);
+      }
     } catch (err) {
+      console.error(err);
       displayErrorToast();
     } finally {
       setIsLoggingWithGithub(false);

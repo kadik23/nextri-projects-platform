@@ -41,7 +41,8 @@ import {
   WORK_TYPES,
 } from "@/config/data";
 import { Badge } from "../ui/badge";
-import { cn } from "@/lib/utils";
+import { cn, fetcher } from "@/lib/utils";
+import { BASE_URL } from "@/config/application";
 
 const formSchema = z.object({
   role: z.string(),
@@ -62,6 +63,13 @@ export function OnboardingDialog() {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {},
+  });
+
+  // use useQuery to hanle data submition
+
+  const postData = fetcher(`${BASE_URL}/onboarding`, {
+    method: "POST",
+    body: JSON.stringify({}),
   });
 
   useEffect(() => {
@@ -88,9 +96,6 @@ export function OnboardingDialog() {
   function onSubmit(values: z.infer<typeof formSchema>) {
     console.log(values); // Handle form submission (e.g., API call)
   }
-  // watch the value of the role
-
-  // display the options acordanlly
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
