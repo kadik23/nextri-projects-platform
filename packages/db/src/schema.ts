@@ -42,24 +42,12 @@ export const userProfileTable = pgTable("user_profile", {
   id: uuid("id").primaryKey().defaultRandom(),
   userId: text("user_id").notNull().references(() => userTable.id),
   workPace: text("work_pace").$type<workPace>().notNull(),
-  updatedAt: timestamp("updated_at"),
-})
-
-export const skillTable = pgTable("skill", {
-  id: uuid("id").primaryKey().defaultRandom(),
-  profileId: uuid("profile_id").notNull().references(() => userProfileTable.id, {onDelete: 'cascade'}),
-  role: text("role").notNull(),
   skillLevel: text("skill_level").notNull(),
+  role: text("role").notNull(),
   technologies: text("technologies").array().notNull(),
-  updatedAt: timestamp("updated_at"),
-})
-
-export const projectCategoryPreferenceTable = pgTable("project_category_preference",{
-  id: uuid("id").primaryKey().defaultRandom(),
   categoryPreference: text("category_preference").$type<ProjectCategoryPreference>().array().notNull(),
   focus: text("focus").array().notNull(),
   openSourcePath: text("open_source_path").$type<OpenSourcePath>(),
-  profileId: uuid("profile_id").notNull().references(() => userProfileTable.id, {onDelete: 'cascade'}),
   updatedAt: timestamp("updated_at"),
 })
 

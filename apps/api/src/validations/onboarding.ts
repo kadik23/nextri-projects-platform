@@ -19,29 +19,22 @@ const OpenSourcePathUnion = z.union([
 ]);
 
 export const onboardingSchema = z.object({
-    userId: z.string(),
     role: z.string(),
     skillLevel: z.string(),
     workPace: WorkPaceUnion,
-    projectCategoryPreference: z.object({
-        categoryPreference: z.array(ProjectCategoryPreferenceUnion),
-        focus: z.array(z.string()),
-        openSourcePath: OpenSourcePathUnion.optional(),
-    }),
+    categoryPreference: z.array(ProjectCategoryPreferenceUnion),
+    focus: z.array(z.string()),
+    openSourcePath: OpenSourcePathUnion.optional(),
     technologies: z.array(z.string()),
 });
 
 export const onboardingUpdateSchema = z.object({
-    userId: z.string(),
-    skills: z.array(z.object({
-        skillLevel: z.string(),
-        role: z.string(),
-        technologies: z.array(z.string()),
-    })).optional(),
+    id: z.string(),
+    skillLevel: z.string().optional(),
+    role: z.string().optional(),
+    technologies: z.array(z.string()).optional(),
     workPace: WorkPaceUnion.optional(),
-    projectCategoryPreference: z.object({
-        categoryPreference: z.array(ProjectCategoryPreferenceUnion),
-        focus: z.array(z.string()),
-        openSourcePath: OpenSourcePathUnion.optional(),
-    }).optional()
+    categoryPreference: z.array(ProjectCategoryPreferenceUnion).optional(),
+    focus: z.array(z.string()).optional(),
+    openSourcePath: OpenSourcePathUnion.optional(),
 });
