@@ -32,6 +32,7 @@ import {
   ROLS,
   SKILLS_LEVELS,
   TECH_STACKS,
+  WORK_TYPES,
 } from "@/config/data";
 import { Badge } from "../ui/badge";
 import { cn } from "@/lib/utils";
@@ -43,13 +44,12 @@ const formSchema = z.object({
   project_foucus: z.string().array(),
   skill_level: z.string(),
   work_pace: z.string(),
+  work_types: z.string().array(),
 });
 
 export function OnboardingDialog() {
   const [formStep, setFormStep] = useState<number>(0);
   const [open, setOpen] = useState<boolean>(true);
-
-  //
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -65,11 +65,11 @@ export function OnboardingDialog() {
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogContent className="w-[500px] min-h-[550px] h-fit  pt-4 ">
+      <DialogContent className="w-[500px] min-h-[550px] h-fit  pt-4  ">
         <Form {...form}>
           <form
             onSubmit={form.handleSubmit(onSubmit)}
-            className="relative space-y-3 overflow-x-hidden flex flex-col justify-between "
+            className="relative  w-full overflow-x-hidden flex flex-col justify-between "
             id="onboarding-form"
           >
             {/* Step 1 */}
@@ -289,6 +289,29 @@ export function OnboardingDialog() {
                       </FormItem>
                     )}
                   />
+
+                  <FormField
+                    control={form.control}
+                    name="work_types"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>what kind of work you want ?</FormLabel>
+
+                        <FormControl>
+                          <MultiSelect
+                            options={WORK_TYPES}
+                            onValueChange={field.onChange}
+                            defaultValue={field.value}
+                            placeholder="select what type of work you want"
+                            animation={0}
+                            maxCount={4}
+                          />
+                        </FormControl>
+
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
                 </div>
               </motion.div>
             )}
@@ -312,13 +335,13 @@ export function OnboardingDialog() {
                         "bg-transparent w-fit text-black border-black hover:bg-transparent p-1"
                       )}
                     >
-                      {form.watch("role")}
+                      {form.watch("role") ?? ""}
                     </Badge>
                   </div>
                   <div className="w-full h-[60px] flex flex-col gap-y-2">
                     <label>your selected skill stack </label>
                     <div className="flex flex-wrap gap-x-4 ">
-                      {form.watch("skills").map((item) => {
+                      {form.watch("skills")?.map((item) => {
                         const option = TECH_STACKS.find(
                           (o) => o.value === item
                         );
@@ -343,7 +366,7 @@ export function OnboardingDialog() {
                         "bg-transparent w-fit text-black border-black hover:bg-transparent p-1"
                       )}
                     >
-                      {form.watch("skill_level")}
+                      {form.watch("skill_level") ?? ""}
                     </Badge>
                   </div>
 
@@ -354,14 +377,14 @@ export function OnboardingDialog() {
                         "bg-transparent w-fit text-black border-black hover:bg-transparent p-1"
                       )}
                     >
-                      {form.watch("work_pace")}
+                      {form.watch("work_pace") ?? ""}
                     </Badge>
                   </div>
 
                   <div className="w-full h-[60px] flex flex-col gap-y-2">
                     <label>your selected project type </label>
                     <div className="flex flex-wrap gap-x-4 ">
-                      {form.watch("project_types").map((item) => {
+                      {form.watch("project_types")?.map((item) => {
                         const option = PROJECT_TYPES.find(
                           (o) => o.value === item
                         );
@@ -381,7 +404,7 @@ export function OnboardingDialog() {
                   <div className="w-full h-[60px] flex flex-col gap-y-2">
                     <label>your selected Focus Selection </label>
                     <div className="flex flex-wrap gap-x-4 ">
-                      {form.watch("project_foucus").map((item) => {
+                      {form.watch("project_foucus")?.map((item) => {
                         const option = PROJECT_FOCUS.find(
                           (o) => o.value === item
                         );
@@ -403,7 +426,7 @@ export function OnboardingDialog() {
             )}
 
             {/* Dialog Footer: Navigation Buttons */}
-            <DialogFooter className="flex justify-end items-center gap-x-4 mt-auto  h-[100px] bg-zinc-100 px-4">
+            <DialogFooter className="flex justify-end items-center gap-x-4   w-full h-[100px] bg-zinc-100 px-4">
               {/* Go Back Button */}
               {formStep > 0 && (
                 <Button

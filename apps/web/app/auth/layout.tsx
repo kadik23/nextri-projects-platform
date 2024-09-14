@@ -1,8 +1,7 @@
-export default function SigninLayout({ children, modal }: { children: React.ReactNode; modal: React.ReactNode }) {
-  return (
-    <div>     
-      {children}
-      {modal}    
-</div>
-  );
+export default function AuthLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}): JSX.Element {
+  return <div>{children}</div>;
 }

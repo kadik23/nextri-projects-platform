@@ -1,4 +1,4 @@
- interface MagicLinkResponse {
+interface MagicLinkResponse {
   success: boolean;
 }
 interface GoogleRedirectResponse {
@@ -9,27 +9,32 @@ interface GithubRedirectResponse {
   url: string;
 }
 
-export async function requestMagicLink(email: string): Promise<MagicLinkResponse> {
-  const response = await fetch("http://localhost:3001/auth/get-magic-link", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({ email }),
-  });
+export async function requestMagicLink(
+  email: string
+): Promise<MagicLinkResponse | undefined> {
+  console.log(email);
+  try {
+    const response = await fetch("http://localhost:3001/auth/get-magic-link", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ email }),
+    });
 
-  console.log(response)
-  if (!response.ok) {
-    throw new Error("Failed to send magic link");
+    console.log(response);
+    if (!response.ok) {
+      throw new Error("Failed to send magic link");
+    }
+
+    const data: MagicLinkResponse = await response.json();
+    return data;
+  } catch (err) {
+    console.log(err);
   }
-
-  const data: MagicLinkResponse = await response.json();
-  return data;
 }
 
 ////////////////////////
-
-
 
 export async function getGoogleRedirectUrl(): Promise<GoogleRedirectResponse> {
   const response = await fetch(
@@ -44,12 +49,9 @@ export async function getGoogleRedirectUrl(): Promise<GoogleRedirectResponse> {
   }
 
   const data: GoogleRedirectResponse = await response.json();
-  console.log(data)
+  console.log(data);
   return data;
 }
-
-
-
 
 export async function getGithubRedirectUrl(): Promise<GithubRedirectResponse> {
   const response = await fetch(

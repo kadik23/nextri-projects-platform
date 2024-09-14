@@ -4,11 +4,14 @@ import authRoutes from "./auth";
 import onboardingRoutes from "./onboarding";
 import * as dotenv from "dotenv";
 import path from "path";
+import { cors } from "hono/cors";
 
 // Load environment variables from the root .env file
 dotenv.config({ path: path.resolve(__dirname, "../../../../.env") });
 
 const app = new Hono();
+
+app.use("*", cors());
 
 // app.use("/protected/*", async (c, next) => {
 //   console.log(`[${c.req.method}] ${c.req.url}`);

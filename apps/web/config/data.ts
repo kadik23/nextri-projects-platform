@@ -397,3 +397,14 @@ export const TECH_STACKS = [
     role: "mobile_dev",
   },
 ];
+
+export const WORK_TYPES: Option[] = [
+  {
+    label: "Work on specific tasks 🔧",
+    value: "specific_tasks",
+  },
+  {
+    label: "Contribute to the whole project 🌍",
+    value: "whole_project",
+  },
+];

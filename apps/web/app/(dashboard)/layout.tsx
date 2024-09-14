@@ -1,5 +1,3 @@
-// add selection and providers and modals
-
 export default function DashboardLayout({
   children,
 }: {
