@@ -8,6 +8,13 @@
       "when": 1726489615602,
       "tag": "0000_numerous_black_crow",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1726333334587,
+      "tag": "0002_high_baron_strucker",
+      "breakpoints": true
     }
   ]
 }
