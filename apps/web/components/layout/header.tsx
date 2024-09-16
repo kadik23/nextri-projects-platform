@@ -1,4 +1,5 @@
 import MaxWidthWrapper from "../max-width-wrapper";
+import { Button } from "../ui/button";
 import UserNav from "../user-nav";
 
 const Header = () => {
@@ -7,7 +8,7 @@ const Header = () => {
       <div className="w-full h-[70px] border-b bg-white fixed top-0 ">
         <MaxWidthWrapper className="h-full">
           <div className="w-full h-full  flex items-center justify-between">
-            <p className="text-lg  ">Home</p>
+            <Button variant={"ghost"}>Home</Button>
             <UserNav />
           </div>
         </MaxWidthWrapper>
