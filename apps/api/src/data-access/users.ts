@@ -33,6 +33,13 @@ export async function getUserByEmail(email: string) {
 
   return user;
 }
+export async function getUserById(id: string) {
+  const user = await db.query.userTable.findFirst({
+    where: eq(userTable.id, id),
+  });
+
+  return user;
+}
 
 export async function getMagicUserAccountByEmail(email: string) {
   const user = await db.query.userTable.findFirst({

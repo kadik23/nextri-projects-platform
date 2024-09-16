@@ -186,3 +186,136 @@ const callbackUrl =
   "http://localhost:3001/auth/github-callback?code=auth_code&state=state_value";
 handleGithubCallback(callbackUrl).catch((err) => console.error(err));
 ```
+
+### 7. **GET `/onboarding/:userId`**
+
+```typescript
+import fetch from "node-fetch";
+
+async function getOnboardingData(userId: string): Promise<void> {
+  const response = await fetch(`http://localhost:3001/onboarding/${userId}`, {
+    method: "GET",
+  });
+
+  if (response.ok) {
+    const data = await response.json();
+    console.log("Onboarding data:", data);
+  } else {
+    console.error("Failed to retrieve onboarding data");
+  }
+}
+
+// Usage
+const userId = "your-user-id";
+getOnboardingData(userId).catch((err) => console.error(err));
+
+```
+
+### 8. **POST `/onboarding/:userId`**
+
+```typescript
+import fetch from "node-fetch";
+
+async function createOnboarding(userId: string, data: {
+  userId: string,
+  role: string,
+  skillLevel: string,
+  workPace: string,
+  technologies: string[],
+  projectCategoryPreference?: {
+    categoryPreference: ProjectCategoryPreference[];
+    focus: string[];
+    openSourcePath?: OpenSourcePath
+  };
+}): Promise<void> {
+  const response = await fetch(`http://localhost:3001/onboarding`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(data),
+  });
+
+  if (response.ok) {
+    const result = await response.json();
+    console.log("Onboarding created:", result);
+  } else {
+    console.error("Failed to create onboarding");
+  }
+}
+
+// Usage
+const data = {
+  userId = "your-user-id",
+  role: "Developer",
+  skillLevel: "Intermediate",
+  workPace: "Short-term,
+  technologies: ["Node.js", "React"],
+  projectCategoriesPreference: {
+    categoryPreference: ["freelance", "open source"],
+    focus: ["crm"],
+    openSourcePath: "rebuild projects",
+  }
+};
+createOnboarding(data).catch((err) => console.error(err));
+
+```
+
+### 9. **PUT `/onboarding/:userId`**
+
+```typescript
+
+import fetch from "node-fetch";
+
+async function updateOnboarding(userId: string, data: {
+  role?: string,
+  skillLevel?: string,
+  workPace?: string,
+  technologies?: string[],
+  projectCategoryPreference?: {
+    categoryPreference: ProjectCategoryPreference[];
+    focus: string[];
+    openSourcePath?: OpenSourcePath
+  };
+}): Promise<void> {
+  const response = await fetch(`http://localhost:3001/onboarding/${userId}`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(data),
+  });
+
+  if (response.ok) {
+    const result = await response.json();
+    console.log("Onboarding updated:", result);
+  } else {
+    console.error("Failed to update onboarding");
+  }
+}
+
+// Usage
+const userId = "your-user-id";
+const updateData = {
+    projectCategoryPreference:{
+        categoryPreference: ["open source"],
+        focus:["crm","ai"],
+        openSourcePath: "rebuild projects"
+    },
+    workPace: "Long-term",
+    skills: [
+      {
+      skillLevel: "Intermediate",
+      technologies: ["laravel", "hono js"],
+      role: "backend"
+      },
+      {
+      skillLevel: "Intermediate",
+      technologies: ["svelte js", "tailwind"],
+      role:"frontend"
+      }
+    ]
+};
+updateOnboarding(userId, updateData).catch((err) => console.error(err));
+
+```
