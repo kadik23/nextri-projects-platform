@@ -30,3 +30,17 @@ export interface Email {
   verified: boolean;
   visibility: string | null;
 }
+
+
+
+
+export interface Prefrences {
+  id: string ,
+  role : string ; 
+  skill_level : string ; 
+  project_type : string ; 
+  project_focus : string[] ;
+  work_type : string ; 
+  work_pace : string ; 
+  techstack :string[] ; 
+}
