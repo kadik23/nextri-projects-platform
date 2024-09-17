@@ -10,6 +10,7 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
+  "type": "module",
   "dependencies": {
     "@lucia-auth/adapter-drizzle": "^1.1.0",
     "dotenv": "^16.4.5",

@@ -30,7 +30,6 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { MultiSelect } from "../multi-select";
-
 import {
   PROJECT_DURATIONS,
   PROJECT_FOCUS,
@@ -41,36 +40,36 @@ import {
   WORK_TYPES,
 } from "@/config/data";
 import { Badge } from "../ui/badge";
-import { cn, fetcher } from "@/lib/utils";
-import { BASE_URL } from "@/config/application";
+import { cn } from "@/lib/utils";
+import { onbordUser } from "@/api/onboarding";
+import { useMutation } from "@tanstack/react-query";
 
-const WorkPaceUnion = z.union([
-  z.literal("short_term"),
-  z.literal("medium_term"),
-  z.literal("long_term"),
-  z.literal("specific_task"),
+export const WorkPaceEnum = z.enum([
+  "short_term",
+  "medium_term",
+  "long_term",
+  "specific_task",
 ]);
 
-const ProjectCategoryPreferenceUnion = z.union([
-  z.literal("freelance"),
-  z.literal("open_source"),
-  z.literal("company"),
+export const ProjectCategoryPreferenceEnum = z.enum([
+  "freelance",
+  "open_source",
+  "company",
 ]);
 
-const OpenSourcePathUnion = z.union([
-  z.literal("rebuild_projects"),
-  z.literal("solve_issues"),
-]);
+export const OpenSourcePathEnum = z.enum(["rebuild_projects", "solve_issues"]);
 
-const formSchema = z.object({
+export const formSchema = z.object({
   role: z.string(),
   skills: z.string().array(),
-  project_types: z.array(ProjectCategoryPreferenceUnion),
+  project_types: z.array(ProjectCategoryPreferenceEnum),
   project_foucus: z.string().array(),
   skill_level: z.string(),
-  work_pace: WorkPaceUnion,
-  work_types: z.array(OpenSourcePathUnion),
+  work_pace: WorkPaceEnum,
+  work_types: z.array(OpenSourcePathEnum),
 });
+
+export type TOnboardingSchema = z.infer<typeof formSchema>;
 
 export function OnboardingDialog() {
   const [formStep, setFormStep] = useState<number>(0);
@@ -78,16 +77,13 @@ export function OnboardingDialog() {
 
   const [isEnabled, setIsEnabled] = useState<boolean>(true);
 
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
-    defaultValues: {},
+  const mutation = useMutation({
+    mutationFn: (data: TOnboardingSchema) => onbordUser(data),
   });
 
-  // use useQuery to hanle data submition
-
-  const postData = fetcher(`${BASE_URL}/onboarding`, {
-    method: "POST",
-    body: JSON.stringify({}),
+  const form = useForm<TOnboardingSchema>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {},
   });
 
   useEffect(() => {
@@ -111,8 +107,18 @@ export function OnboardingDialog() {
     setIsEnabled(isNextButtonDisabled());
   }, [formStep, form.formState]);
 
-  function onSubmit(values: z.infer<typeof formSchema>) {
+  async function onSubmit(values: z.infer<typeof formSchema>) {
     console.log(values); // Handle form submission (e.g., API call)
+
+    try {
+      await mutation.mutateAsync(values);
+
+      setOpen(false);
+
+      // display toasts here
+    } catch (err) {
+      console.log(err);
+    }
   }
 
   return (
@@ -511,11 +517,12 @@ export function OnboardingDialog() {
               {/* Submit Button (only shows on final step) */}
               {formStep === 3 && (
                 <Button
+                  disabled={mutation.isPending}
                   type="submit"
                   form="onboarding-form"
                   className="btn-primary"
                 >
-                  Submit
+                  {mutation.isPending ? "loading" : "submit"}
                 </Button>
               )}
             </DialogFooter>
