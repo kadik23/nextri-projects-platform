@@ -17,4 +17,29 @@ export const onbordUser = async (data: TOnboardingSchema) => {
   }
 };
 
-export const isUserOnboarded = () => {};
+export const isUserOnboarded = async ({
+  authSession,
+}: {
+  authSession: string | null;
+}) => {
+  if (!authSession) {
+    return undefined;
+  }
+  try {
+    const reponse = await fetcher(`http://localhost:3001/onboarding`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+
+        Cookie: `auth_session=${authSession};`, // psq ma7abch yab3athha wa7d m next js server
+      },
+      credentials: "include",
+    });
+
+    //@ts-ignore
+    return reponse?.isOnborded;
+  } catch (err) {
+    console.error("Error on onboarding the user :", err);
+    throw new Error("Failed to send magic link. Please try again later.");
+  }
+};

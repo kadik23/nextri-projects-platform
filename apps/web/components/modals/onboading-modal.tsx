@@ -71,9 +71,9 @@ export const formSchema = z.object({
 
 export type TOnboardingSchema = z.infer<typeof formSchema>;
 
-export function OnboardingDialog() {
+export function OnboardingDialog({ initialValue }: { initialValue: boolean }) {
   const [formStep, setFormStep] = useState<number>(0);
-  const [open, setOpen] = useState<boolean>(true);
+  const [open, setOpen] = useState<boolean>(initialValue);
 
   const [isEnabled, setIsEnabled] = useState<boolean>(true);
 

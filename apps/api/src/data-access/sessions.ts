@@ -11,6 +11,8 @@ export async function deleteSessionForUser(userId: string, trx = db) {
 
 export const getUserId = async (c: Context<any>) => {
   const sessionId = getCookie(c, "auth_session") ?? null;
+
+  console.log(sessionId);
   try {
     if (!sessionId) {
       return null;
