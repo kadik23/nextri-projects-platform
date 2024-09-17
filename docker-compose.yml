@@ -7,12 +7,13 @@ services:
       dockerfile: ./apps/api/Dockerfile
     ports:
       - "3001:3001" # Map API service to port 3001
+    volumes:
+      - ./apps/api:/app # Mount the local API folder for live-reloading
+      - /app/node_modules # Ignore node_modules to avoid performance issues
     depends_on:
       - db
     environment:
-      DATABASE_URL: postgres://postgres:password@db:5432/nextridb
-    volumes:
-      - ./apps/api:/app
+      DATABASE_URL: postgres://postgres:password@db:5432/mydatabase
     networks:
       - my-network
 
@@ -23,20 +24,21 @@ services:
       dockerfile: ./apps/web/Dockerfile
     ports:
       - "3000:3000" # Map web service to port 3000
+    volumes:
+      - ./apps/web:/app # Mount the local Web folder for live-reloading
+      - /app/node_modules # Ignore node_modules to avoid performance issues
     depends_on:
       - api
-    volumes:
-      - ./apps/web:/app
     networks:
       - my-network
 
   # PostgreSQL Database
   db:
-    image: postgres:14
+    image: postgres
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: password
-      POSTGRES_DB: nextridb
+      POSTGRES_DB: mydatabase
     ports:
       - "5432:5432"
     volumes:

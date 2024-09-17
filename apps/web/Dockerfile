@@ -1,46 +1,27 @@
-# Use Node.js image as the base
-FROM node:18-alpine
+# Use specific Node.js version as build argument
+ARG NODE_VERSION=20.5.1
+FROM node:${NODE_VERSION}-alpine
 
-# Install pnpm globally
-RUN npm install -g pnpm
+# Set the PNPM version as a build argument
+ARG PNPM_VERSION=9.9.0
+
+# Install pnpm globally with the specified version
+RUN npm install -g pnpm@${PNPM_VERSION}
 
 # Set working directory
 WORKDIR /app
 
-# Copy the lockfile and package.json files
+# Copy lockfile and package.json files
 COPY ./pnpm-lock.yaml ./package.json ./
 
 # Install dependencies using pnpm
 RUN pnpm install
 
-# Copy the rest of the application
+# Copy the rest of the application code
 COPY . .
 
 # Expose the port the frontend (web) will run on
 EXPOSE 3000
 
-# Command to run the web application
-CMD ["pnpm", "run", "dev"]
-# Use Node.js image as the base
-FROM node:18-alpine
-
-# Install pnpm globally
-RUN npm install -g pnpm
-
-# Set working directory
-WORKDIR /app
-
-# Copy the lockfile and package.json files
-COPY ./pnpm-lock.yaml ./package.json ./
-
-# Install dependencies using pnpm
-RUN pnpm install
-
-# Copy the rest of the application
-COPY . .
-
-# Expose the port the frontend (web) will run on
-EXPOSE 3000
-
-# Command to run the web application
+# Start the web application in dev mode with hot-reloading
 CMD ["pnpm", "run", "dev"]
