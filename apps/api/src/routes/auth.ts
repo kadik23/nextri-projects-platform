@@ -1,38 +1,207 @@
-import { Hono } from "hono";
+import { type Context, Hono } from "hono";
 import { emailSchema } from "../validations/auth";
 import {
   loginWithMagicLinkUseCase,
   sendMagicLinkUseCase,
 } from "../use-cases/auth/magic-link";
 import { getCookie, setCookie } from "hono/cookie";
-import { createSession } from "../lib/session";
+import { createSessionCookie } from "../lib/session";
 import { github, googleAuth, lucia } from "../lib/auth";
 import {
   generateCodeVerifier,
   generateState,
   OAuth2RequestError,
 } from "arctic";
-import { Email, GitHubUser, GoogleUser } from "../validations/types";
+import type { Email, GitHubUser, GoogleUser } from "../validations/types";
 import {
-  createGithubUserUseCase,
-  createGoogleUserUseCase,
-  getAccountByGithubIdUseCase,
-  getAccountByGoogleIdUseCase,
-  invalidateSessionsUseCase,
+  getAccountByProviderIdUseCase,
+  createProviderUserUseCase,
 } from "../use-cases/auth/accounts";
-import {
-  deleteSessionForUser,
-  getCurrentUser,
-  getUserId,
-} from "../data-access/sessions";
+import { deleteSessionForUser, getUserId } from "../data-access/sessions";
 
 const auth = new Hono();
+
+const FRONTEND_URL = process.env.FRONTEND_URL || "http://localhost:3000";
+
+type OAuthProvider = {
+  name: "google" | "github";
+  authInstance: typeof googleAuth | typeof github;
+  userInfoUrl: string;
+  scopes: string[];
+};
+
+const OAUTH_PROVIDERS: Record<string, OAuthProvider> = {
+  google: {
+    name: "google",
+    authInstance: googleAuth,
+    userInfoUrl: "https://openidconnect.googleapis.com/v1/userinfo",
+    scopes: ["profile", "email"],
+  },
+  github: {
+    name: "github",
+    authInstance: github,
+    userInfoUrl: "https://api.github.com/user",
+    scopes: ["user:email"],
+  },
+};
+
+const setSecureCookie = (
+  c: Context,
+  name: string,
+  value: string,
+  maxAge: number
+) => {
+  setCookie(c, name, value, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "lax",
+    path: "/",
+    maxAge,
+  });
+};
+
+const getPrimaryEmail = (emails: Email[]): string => {
+  const primaryEmail = emails.find((email) => email.primary);
+
+  if (!primaryEmail) {
+    throw new Error("No primary email found");
+  }
+
+  return primaryEmail.email;
+};
+
+const handleOAuthError = (c: Context, error: unknown) => {
+  if (error instanceof OAuth2RequestError) {
+    return c.json(
+      { success: false, error: "OAuth request failed", details: error.message },
+      400
+    );
+  }
+
+  if (error instanceof TypeError && error.message === "fetch failed") {
+    const cause = (error as any).cause;
+    if (cause?.code === "UND_ERR_CONNECT_TIMEOUT") {
+      return c.json(
+        {
+          success: false,
+          error: "Connection timeout",
+          details:
+            "Unable to reach the authentication server. Please try again later.",
+        },
+        503
+      );
+    }
+  }
+
+  console.error("Unexpected error during OAuth:", error);
+
+  return c.json(
+    {
+      success: false,
+      error: "An unexpected error occurred during authentication",
+      details:
+        "Please try again later or contact support if the problem persists.",
+    },
+    500
+  );
+};
+
+auth.get("/:provider/authorize", async (c) => {
+  const providerName = c.req.param("provider");
+  const provider = OAUTH_PROVIDERS[providerName];
+  if (!provider) {
+    return c.json({ success: false, error: "Invalid OAuth provider" }, 400);
+  }
+
+  const state = generateState();
+  const codeVerifier = generateCodeVerifier();
+
+  const url = await provider.authInstance.createAuthorizationURL(
+    state,
+    codeVerifier,
+    {
+      scopes: provider.scopes,
+    }
+  );
+
+  setSecureCookie(c, `${provider.name}_oauth_state`, state, 600);
+  setSecureCookie(c, `${provider.name}_code_verifier`, codeVerifier, 600);
+
+  return c.json({ url: url.href });
+});
+
+auth.get("/:provider/callback", async (c) => {
+  const providerName = c.req.param("provider");
+  const provider = OAUTH_PROVIDERS[providerName];
+  if (!provider) {
+    return c.json({ success: false, error: "Invalid OAuth provider" }, 400);
+  }
+
+  const url = new URL(c.req.url);
+  const code = url.searchParams.get("code");
+  const state = url.searchParams.get("state");
+  const storedState = getCookie(c, `${provider.name}_oauth_state`) ?? null;
+  const codeVerifier = getCookie(c, `${provider.name}_code_verifier`) ?? null;
+
+  if (
+    !code ||
+    !state ||
+    !storedState ||
+    state !== storedState ||
+    !codeVerifier
+  ) {
+    return c.json(
+      { success: false, error: "Invalid OAuth callback parameters" },
+      400
+    );
+  }
+
+  try {
+    const tokens = await provider.authInstance.validateAuthorizationCode(
+      code,
+      codeVerifier
+    );
+    const response = await fetch(provider.userInfoUrl, {
+      headers: { Authorization: `Bearer ${tokens.accessToken}` },
+    });
+    const providerUser: GoogleUser | GitHubUser = await response.json();
+    if (provider.name === "github" && !providerUser.email) {
+      const emailsResponse = await fetch("https://api.github.com/user/emails", {
+        headers: { Authorization: `Bearer ${tokens.accessToken}` },
+      });
+      const emails = await emailsResponse.json();
+      providerUser.email = getPrimaryEmail(emails);
+    }
+
+    if (provider.name === "github") {
+      providerUser.provider = "github";
+    } else if (provider.name === "google") {
+      providerUser.provider = "google";
+    }
+
+    const existingAccount = await getAccountByProviderIdUseCase(providerUser);
+    const userId = existingAccount
+      ? existingAccount.userId
+      : await createProviderUserUseCase(providerUser);
+    const sessionCookie = await createSessionCookie(userId);
+
+    setSecureCookie(
+      c,
+      sessionCookie.name,
+      sessionCookie.value,
+      60 * 60 * 24 * 30
+    );
+
+    return c.redirect(FRONTEND_URL, 302);
+  } catch (error) {
+    return handleOAuthError(c, error);
+  }
+});
 
 auth.post("/get-magic-link", async (c) => {
   console.log("the generating magic link is working  is running");
   try {
     const body = await c.req.json();
-
     const data = emailSchema.parse(body);
 
     await sendMagicLinkUseCase(data.email);
@@ -53,7 +222,7 @@ auth.get("/magic/:token", async (c) => {
       return c.json({ success: false, error: "there is no user", status: 400 });
     }
 
-    const sessionCookie = await createSession(user?.id);
+    const sessionCookie = await createSessionCookie(user?.id);
 
     setCookie(c, sessionCookie.name, sessionCookie.value, {
       ...sessionCookie.attributes,
@@ -90,211 +259,5 @@ auth.get("/logout", async (c) => {
 
   return c.json({ success: true });
 });
-
-// const sessionId = getCookie(c, "auth_session") ?? null;
-
-auth.get("/google-redirect-url", async (c) => {
-  console.log("this is from the redirect url ");
-  const state = generateState();
-  const codeVerifier = generateCodeVerifier();
-
-  const url = await googleAuth.createAuthorizationURL(state, codeVerifier, {
-    scopes: ["profile", "email"],
-  });
-
-  setCookie(c, "google_oauth_state", state, {
-    path: "/",
-    secure: process.env.NODE_ENV === "production", // Only secure in production
-    maxAge: 60 * 10,
-  });
-
-  setCookie(c, "google_code_verifier", codeVerifier, {
-    path: "/",
-    secure: process.env.NODE_ENV === "production", // Only secure in production
-    maxAge: 60 * 10,
-  });
-
-  console.log(url?.href);
-
-  return c.json({
-    url: url?.href,
-  });
-});
-
-auth.get("/google-callback", async (c) => {
-  const url = new URL(c.req.url);
-  const code = url.searchParams.get("code");
-  const state = url.searchParams.get("state");
-  const storedState = getCookie(c, "google_oauth_state") ?? null;
-  const codeVerifier = getCookie(c, "google_code_verifier") ?? null;
-
-  console.log("this is the code verifier");
-  console.log(code);
-  console.log(codeVerifier); // ->this cookie is null why ?
-
-  if (
-    !code ||
-    !state ||
-    !storedState ||
-    state !== storedState ||
-    !codeVerifier
-  ) {
-    return c.json({
-      success: false,
-      error: "the state and code are not match",
-      status: 400,
-    });
-  }
-  console.log("here i am insisde the function");
-  try {
-    const tokens = await googleAuth.validateAuthorizationCode(
-      code,
-      codeVerifier
-    );
-    const response = await fetch(
-      "https://openidconnect.googleapis.com/v1/userinfo",
-      {
-        headers: {
-          Authorization: `Bearer ${tokens.accessToken}`,
-        },
-      }
-    );
-    const googleUser: GoogleUser = await response.json();
-
-    console.log(googleUser);
-
-    const existingAccount = await getAccountByGoogleIdUseCase(googleUser.sub);
-
-    console.log(existingAccount);
-
-    if (existingAccount) {
-      const sessionCookie = await createSession(existingAccount.userId);
-
-      setCookie(c, sessionCookie.name, sessionCookie.value, {
-        ...sessionCookie.attributes,
-        maxAge: 60 * 60 * 24 * 30,
-        path: "/",
-      });
-      return c.redirect("http://localhost:3000");
-    }
-
-    const userId = await createGoogleUserUseCase(googleUser);
-
-    const sessionCookie = await createSession(userId);
-
-    setCookie(c, sessionCookie.name, sessionCookie.value, {
-      ...sessionCookie.attributes,
-      maxAge: 60 * 60 * 24 * 30,
-      path: "/",
-    });
-    return c.redirect("http://localhost:3000");
-  } catch (e) {
-    console.error("Google OAuth error:", e);
-    // the specific error message depends on the provider
-    if (e instanceof OAuth2RequestError) {
-      return c.json({ success: false, error: e, status: 400 });
-    }
-
-    return c.json({ success: false, error: e, status: 500 });
-  }
-});
-
-// http://localhost:3001/auth/google-callback
-auth.get("/github-redirect-url", async (c) => {
-  const state = generateState();
-  const url = await github.createAuthorizationURL(state, {
-    scopes: ["user:email"],
-  });
-
-  setCookie(c, "github_oauth_state", state, {
-    path: "/",
-    secure: process.env.NODE_ENV === "production",
-    httpOnly: true,
-    maxAge: 60 * 10,
-    sameSite: "lax",
-  });
-
-  return c.json({
-    url,
-  });
-});
-auth.get("/github-callback", async (c) => {
-  const url = new URL(c.req.url);
-  const code = url.searchParams.get("code");
-  const state = url.searchParams.get("state");
-  const storedState = getCookie(c, "github_oauth_state") ?? null;
-  if (!code || !state || !storedState || state !== storedState) {
-    return c.json({
-      success: false,
-      error: "the state or the code are no match",
-      status: 500,
-    });
-  }
-
-  try {
-    const tokens = await github.validateAuthorizationCode(code);
-
-    console.log("user ");
-    const githubUserResponse = await fetch("https://api.github.com/user", {
-      headers: {
-        Authorization: `Bearer ${tokens.accessToken}`,
-      },
-    });
-    const githubUser: GitHubUser = await githubUserResponse.json();
-
-    console.log("this is the github user");
-    console.log(githubUser);
-
-    const existingAccount = await getAccountByGithubIdUseCase(githubUser.id);
-
-    if (existingAccount) {
-      const sessionCookie = await createSession(existingAccount.userId);
-
-      setCookie(c, sessionCookie.name, sessionCookie.value, {
-        ...sessionCookie.attributes,
-        maxAge: 60 * 60 * 24 * 30,
-        path: "/",
-      });
-      return c.redirect("http://localhost:3000");
-    }
-
-    if (!githubUser.email) {
-      const githubUserEmailResponse = await fetch(
-        "https://api.github.com/user/emails",
-        {
-          headers: {
-            Authorization: `Bearer ${tokens.accessToken}`,
-          },
-        }
-      );
-      const githubUserEmails = await githubUserEmailResponse.json();
-
-      githubUser.email = getPrimaryEmail(githubUserEmails);
-    }
-
-    const userId = await createGithubUserUseCase(githubUser);
-    const sessionCookie = await createSession(userId);
-
-    setCookie(c, sessionCookie.name, sessionCookie.value, {
-      ...sessionCookie.attributes,
-      maxAge: 60 * 60 * 24 * 30,
-      path: "/",
-    });
-    return c.redirect("http://localhost:3000");
-  } catch (e) {
-    console.error("Github OAuth error:", e);
-    // the specific error message depends on the provider
-    if (e instanceof OAuth2RequestError) {
-      return c.json({ success: false, error: e, status: 400 });
-    }
-
-    return c.json({ success: false, error: e, status: 500 });
-  }
-});
-
-function getPrimaryEmail(emails: Email[]): string {
-  const primaryEmail = emails.find((email) => email.primary);
-  return primaryEmail!.email;
-}
 
 export default auth;

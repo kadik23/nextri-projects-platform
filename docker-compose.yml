@@ -1,0 +1,53 @@
+version: "3.8"
+services:
+  # Backend (API service)
+  api:
+    build:
+      context: .
+      dockerfile: ./apps/api/Dockerfile
+    ports:
+      - "3001:3001" # Map API service to port 3001
+    depends_on:
+      - db
+    environment:
+      DATABASE_URL: postgres://postgres:password@db:5432/nextridb
+    volumes:
+      - ./apps/api:/app
+    networks:
+      - my-network
+
+  # Frontend (Web service)
+  web:
+    build:
+      context: .
+      dockerfile: ./apps/web/Dockerfile
+    ports:
+      - "3000:3000" # Map web service to port 3000
+    depends_on:
+      - api
+    volumes:
+      - ./apps/web:/app
+    networks:
+      - my-network
+
+  # PostgreSQL Database
+  db:
+    image: postgres:14
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: nextridb
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    networks:
+      - my-network
+
+# Volumes for persistent data
+volumes:
+  pgdata:
+
+# Network for all services
+networks:
+  my-network:
