@@ -32,6 +32,8 @@ export const getCurrentUser = async (c: Context<any>) => {
 
 export const getUserId = async (c: Context<any>) => {
   const sessionId = getCookie(c, "auth_session") ?? null;
+
+  console.log(sessionId);
   try {
     if (!sessionId) {
       return null;

@@ -11,13 +11,9 @@ const onboarding = new Hono();
 onboarding.post("/", async (c) => {
   const body = await c.req.json();
 
-  console.log(body);
   const data = onboardingSchema.parse(body?.data);
-  console.log("this is the data we pared");
-  console.log(data);
-  const user_id = await getUserId(c);
 
-  console.log("the client is trying to ");
+  const user_id = await getUserId(c);
 
   if (!user_id) {
     return c.json({ error: "Credentials are not valid" });
@@ -34,8 +30,6 @@ onboarding.post("/", async (c) => {
       work_types: data.work_types,
     });
 
-    console.log(result);
-
     return c.json({ message: "User Onboarding Successful", result });
   } catch (err: any) {
     console.log(err);
@@ -47,16 +41,16 @@ onboarding.post("/", async (c) => {
 });
 
 onboarding.get("/", async (c) => {
+  const user = await getUserId(c);
+  if (!user) {
+    return c.json({ error: "Credentials are not valid" });
+  }
   try {
-    const user = await getUserId(c);
-    if (!user) {
-      return c.json({ error: "Credentials are not valid" });
-    } else {
-      const result = await getMyOnboardingData(user);
+    const result = await getMyOnboardingData(user);
 
-      return c.json({ message: "User Onboarding Successful", result });
-    }
+    return c.json({ result, isOnborded: !!result });
   } catch (err: any) {
+    console.error(err);
     return c.json(
       { error: "Failed to complete onboarding", details: err.message },
       500

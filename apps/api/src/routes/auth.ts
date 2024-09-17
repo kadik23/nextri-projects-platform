@@ -161,6 +161,8 @@ auth.get("/google-callback", async (c) => {
     );
     const googleUser: GoogleUser = await response.json();
 
+    console.log(googleUser);
+
     const existingAccount = await getAccountByGoogleIdUseCase(googleUser.sub);
 
     console.log(existingAccount);

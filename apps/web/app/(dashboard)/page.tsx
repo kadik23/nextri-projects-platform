@@ -1,14 +1,25 @@
-import Header from "@/components/layout/header";
+import { isUserOnboarded } from "@/api/onboarding";
 import MaxWidthWrapper from "@/components/max-width-wrapper";
 import { OnboardingDialog } from "@/components/modals/onboading-modal";
-import { Button } from "@/components/ui/button";
 import Image from "next/image";
 import Link from "next/link";
 import type { FC } from "react";
+import { cookies } from "next/headers";
 
-// here fetch to see if the user has been onboarded or not
-const page: FC = () => {
-  // just send the data to the endpoint and finish that modal
+const page: FC = async () => {
+  const onboardedOrNot = await isUserOnboarded({
+    authSession: cookies().get("auth_session")?.value ?? null,
+  });
+
+  //   <div className="w-full h-screen flex flex-col items-center justify-center">
+  //   <Link
+  //     href="/auth"
+  //     className="px-6 py-6 rounded-md font-bold text-xl bg-white border-2 border-primary text-primary w-fit transition-all shadow-[4px_4px_0px_black] hover:shadow-none hover:translate-x-[4px] hover:translate-y-[4px]"
+  //   >
+  //     Explore different project
+  //   </Link>
+  // </div>
+
   return (
     <>
       <div className="bg-white w-full ">
@@ -44,7 +55,7 @@ const page: FC = () => {
         <div className="w-full min-h-screen h-fit flex flex-col items-center justify-start"></div>
       </MaxWidthWrapper>
 
-      <OnboardingDialog />
+      <OnboardingDialog initialValue={!onboardedOrNot} />
     </>
   );
 };
