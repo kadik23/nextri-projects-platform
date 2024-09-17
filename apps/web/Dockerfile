@@ -1,27 +1,22 @@
-# Use specific Node.js version as build argument
+# Dockerfile for Web
 ARG NODE_VERSION=20.5.1
 FROM node:${NODE_VERSION}-alpine
 
-# Set the PNPM version as a build argument
 ARG PNPM_VERSION=9.9.0
 
-# Install pnpm globally with the specified version
-RUN npm install -g pnpm@${PNPM_VERSION}
+RUN npm install -g pnpm@${PNPM_VERSION} turbo
 
-# Set working directory
 WORKDIR /app
 
-# Copy lockfile and package.json files
-COPY ./pnpm-lock.yaml ./package.json ./
+
+
+
+# Copy the entire monorepo to the container's /app directory
+COPY . .
 
 # Install dependencies using pnpm
 RUN pnpm install
 
-# Copy the rest of the application code
-COPY . .
-
-# Expose the port the frontend (web) will run on
 EXPOSE 3000
 
-# Start the web application in dev mode with hot-reloading
 CMD ["pnpm", "run", "dev"]
