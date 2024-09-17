@@ -1,3 +1,7 @@
-export type ProjectCategoryPreference = "freelance" | "open source" | "company"
-export type workPace = "Short-term" | "Medium-term" | "Long-term" | "Specific-task";
-export type OpenSourcePath = "rebuild projects" | "solve issues" 
+export type ProjectCategoryPreference = "freelance" | "open_source" | "company";
+export type workPace =
+  | "short_term"
+  | "medium_term"
+  | "long_term"
+  | "specific_task";
+export type OpenSourcePath = "rebuild_projects" | "solve_issues";

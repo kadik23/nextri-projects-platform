@@ -44,14 +44,32 @@ import { Badge } from "../ui/badge";
 import { cn, fetcher } from "@/lib/utils";
 import { BASE_URL } from "@/config/application";
 
+const WorkPaceUnion = z.union([
+  z.literal("short_term"),
+  z.literal("medium_term"),
+  z.literal("long_term"),
+  z.literal("specific_task"),
+]);
+
+const ProjectCategoryPreferenceUnion = z.union([
+  z.literal("freelance"),
+  z.literal("open_source"),
+  z.literal("company"),
+]);
+
+const OpenSourcePathUnion = z.union([
+  z.literal("rebuild_projects"),
+  z.literal("solve_issues"),
+]);
+
 const formSchema = z.object({
   role: z.string(),
   skills: z.string().array(),
-  project_types: z.string().array(),
+  project_types: z.array(ProjectCategoryPreferenceUnion),
   project_foucus: z.string().array(),
   skill_level: z.string(),
-  work_pace: z.string(),
-  work_types: z.string().array(),
+  work_pace: WorkPaceUnion,
+  work_types: z.array(OpenSourcePathUnion),
 });
 
 export function OnboardingDialog() {
