@@ -58,7 +58,7 @@ export const PROJECT_TYPES: Option[] = [
   },
   {
     label: "🏢 Company Projects",
-    value: "company_projects",
+    value: "company",
   },
 ];
 

@@ -1,5 +1,5 @@
 {
-  "id": "6af82fa1-8e17-4fe6-ba77-bfc29fa4ba6b",
+  "id": "4d11c14c-9c23-47da-8608-33e6425383c7",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -227,10 +227,9 @@
       "columns": {
         "id": {
           "name": "id",
-          "type": "uuid",
+          "type": "text",
           "primaryKey": true,
-          "notNull": true,
-          "default": "gen_random_uuid()"
+          "notNull": true
         },
         "user_id": {
           "name": "user_id",
@@ -240,7 +239,8 @@
         },
         "work_pace": {
           "name": "work_pace",
-          "type": "text",
+          "type": "work_pace",
+          "typeSchema": "public",
           "primaryKey": false,
           "notNull": true
         },
@@ -256,15 +256,15 @@
           "primaryKey": false,
           "notNull": true
         },
-        "technologies": {
-          "name": "technologies",
+        "skills": {
+          "name": "skills",
           "type": "text[]",
           "primaryKey": false,
           "notNull": true
         },
         "category_preference": {
           "name": "category_preference",
-          "type": "text[]",
+          "type": "project_type[]",
           "primaryKey": false,
           "notNull": true
         },
@@ -274,9 +274,9 @@
           "primaryKey": false,
           "notNull": true
         },
-        "open_source_path": {
-          "name": "open_source_path",
-          "type": "text",
+        "work_type": {
+          "name": "work_type",
+          "type": "work_type[]",
           "primaryKey": false,
           "notNull": false
         },
@@ -350,6 +350,33 @@
     }
   },
   "enums": {
+    "public.project_type": {
+      "name": "project_type",
+      "schema": "public",
+      "values": [
+        "freelance",
+        "open_source",
+        "company"
+      ]
+    },
+    "public.work_pace": {
+      "name": "work_pace",
+      "schema": "public",
+      "values": [
+        "short_term",
+        "medium_term",
+        "long_term",
+        "specific_task"
+      ]
+    },
+    "public.work_type": {
+      "name": "work_type",
+      "schema": "public",
+      "values": [
+        "rebuild_projects",
+        "solve_issues"
+      ]
+    },
     "public.type": {
       "name": "type",
       "schema": "public",

@@ -1,4 +1,22 @@
 DO $$ BEGIN
+ CREATE TYPE "public"."project_type" AS ENUM('freelance', 'open_source', 'company');
+EXCEPTION
+ WHEN duplicate_object THEN null;
+END $$;
+--> statement-breakpoint
+DO $$ BEGIN
+ CREATE TYPE "public"."work_pace" AS ENUM('short_term', 'medium_term', 'long_term', 'specific_task');
+EXCEPTION
+ WHEN duplicate_object THEN null;
+END $$;
+--> statement-breakpoint
+DO $$ BEGIN
+ CREATE TYPE "public"."work_type" AS ENUM('rebuild_projects', 'solve_issues');
+EXCEPTION
+ WHEN duplicate_object THEN null;
+END $$;
+--> statement-breakpoint
+DO $$ BEGIN
  CREATE TYPE "public"."type" AS ENUM('email', 'google', 'github');
 EXCEPTION
  WHEN duplicate_object THEN null;
@@ -38,15 +56,15 @@ CREATE TABLE IF NOT EXISTS "user_detail" (
 );
 --> statement-breakpoint
 CREATE TABLE IF NOT EXISTS "user_profile" (
-	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+	"id" text PRIMARY KEY NOT NULL,
 	"user_id" text NOT NULL,
-	"work_pace" text NOT NULL,
+	"work_pace" "work_pace" NOT NULL,
 	"skill_level" text NOT NULL,
 	"role" text NOT NULL,
-	"technologies" text[] NOT NULL,
-	"category_preference" text[] NOT NULL,
+	"skills" text[] NOT NULL,
+	"category_preference" project_type[] NOT NULL,
 	"focus" text[] NOT NULL,
-	"open_source_path" text,
+	"work_type" work_type[],
 	"updated_at" timestamp
 );
 --> statement-breakpoint

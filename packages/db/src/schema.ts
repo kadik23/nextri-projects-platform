@@ -9,7 +9,7 @@ export const ProjectCategoryEnum = pgEnum("project_type", [
   "company",
 ]);
 
-export const WorkPaceEnum = pgEnum("work_pace_type", [
+export const WorkPaceEnum = pgEnum("work_pace", [
   "short_term",
   "medium_term",
   "long_term",
