@@ -1,5 +1,5 @@
 {
-  "id": "219715d9-9078-4954-9af7-db3e02ef0c17",
+  "id": "6af82fa1-8e17-4fe6-ba77-bfc29fa4ba6b",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -116,61 +116,6 @@
         }
       }
     },
-    "public.project_category_preference": {
-      "name": "project_category_preference",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "uuid",
-          "primaryKey": true,
-          "notNull": true,
-          "default": "gen_random_uuid()"
-        },
-        "category_preference": {
-          "name": "category_preference",
-          "type": "text[]",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "focus": {
-          "name": "focus",
-          "type": "text[]",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "profile_id": {
-          "name": "profile_id",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "updated_at": {
-          "name": "updated_at",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": false
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {
-        "project_category_preference_profile_id_user_profile_id_fk": {
-          "name": "project_category_preference_profile_id_user_profile_id_fk",
-          "tableFrom": "project_category_preference",
-          "tableTo": "user_profile",
-          "columnsFrom": [
-            "profile_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {}
-    },
     "public.session": {
       "name": "session",
       "schema": "",
@@ -207,67 +152,6 @@
             "id"
           ],
           "onDelete": "no action",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {}
-    },
-    "public.skill": {
-      "name": "skill",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "uuid",
-          "primaryKey": true,
-          "notNull": true,
-          "default": "gen_random_uuid()"
-        },
-        "profile_id": {
-          "name": "profile_id",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "role": {
-          "name": "role",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "skill_level": {
-          "name": "skill_level",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "technologies": {
-          "name": "technologies",
-          "type": "text[]",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "updated_at": {
-          "name": "updated_at",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": false
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {
-        "skill_profile_id_user_profile_id_fk": {
-          "name": "skill_profile_id_user_profile_id_fk",
-          "tableFrom": "skill",
-          "tableTo": "user_profile",
-          "columnsFrom": [
-            "profile_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
           "onUpdate": "no action"
         }
       },
@@ -359,6 +243,42 @@
           "type": "text",
           "primaryKey": false,
           "notNull": true
+        },
+        "skill_level": {
+          "name": "skill_level",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "role": {
+          "name": "role",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "technologies": {
+          "name": "technologies",
+          "type": "text[]",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "category_preference": {
+          "name": "category_preference",
+          "type": "text[]",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "focus": {
+          "name": "focus",
+          "type": "text[]",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "open_source_path": {
+          "name": "open_source_path",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
         },
         "updated_at": {
           "name": "updated_at",

@@ -1,7 +1,25 @@
 import { pgEnum, pgTable, text, timestamp, uuid } from "drizzle-orm/pg-core";
-import {OpenSourcePath, ProjectCategoryPreference, workPace} from "./types"
+import { OpenSourcePath, ProjectCategoryPreference, workPace } from "./types";
 
 export const accountTypeEnum = pgEnum("type", ["email", "google", "github"]);
+
+export const ProjectCategoryEnum = pgEnum("project_type", [
+  "freelance",
+  "open_source",
+  "company",
+]);
+
+export const WorkPaceEnum = pgEnum("work_pace_type", [
+  "short_term",
+  "medium_term",
+  "long_term",
+  "specific_task",
+]);
+
+export const WorkTypeEnum = pgEnum("work_type", [
+  "rebuild_projects",
+  "solve_issues",
+]);
 
 export const userTable = pgTable("user", {
   id: text("id").primaryKey(),
@@ -39,17 +57,21 @@ export const magicLinksTable = pgTable("magic_links", {
 });
 
 export const userProfileTable = pgTable("user_profile", {
-  id: uuid("id").primaryKey().defaultRandom(),
-  userId: text("user_id").notNull().references(() => userTable.id),
-  workPace: text("work_pace").$type<workPace>().notNull(),
+  id: text("id").primaryKey(),
+  userId: text("user_id")
+    .notNull()
+    .references(() => userTable.id),
+  workPace: WorkPaceEnum("work_pace").notNull(),
   skillLevel: text("skill_level").notNull(),
   role: text("role").notNull(),
-  technologies: text("technologies").array().notNull(),
-  categoryPreference: text("category_preference").$type<ProjectCategoryPreference>().array().notNull(),
+  skills: text("skills").array().notNull(),
+  categoryPreference: ProjectCategoryEnum("category_preference")
+    .array()
+    .notNull(),
   focus: text("focus").array().notNull(),
-  openSourcePath: text("open_source_path").$type<OpenSourcePath>(),
+  work_types: WorkTypeEnum("work_type").array(),
   updatedAt: timestamp("updated_at"),
-})
+});
 
 export const userDetailsTable = pgTable("user_detail", {
   id: text("id").primaryKey(),

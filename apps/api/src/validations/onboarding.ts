@@ -1,40 +1,28 @@
-import { z } from 'zod';
+import { z } from "zod";
 
-const WorkPaceUnion = z.union([
-    z.literal("Short-term"),
-    z.literal("Medium-term"),
-    z.literal("Long-term"),
-    z.literal("Specific-task")
+export const WorkPaceEnum = z.enum([
+  "short_term",
+  "medium_term",
+  "long_term",
+  "specific_task",
 ]);
 
-const ProjectCategoryPreferenceUnion = z.union([
-    z.literal("freelance"),
-    z.literal("open source"),
-    z.literal("company")
+export const ProjectCategoryPreferenceEnum = z.enum([
+  "freelance",
+  "open_source",
+  "company",
 ]);
 
-const OpenSourcePathUnion = z.union([
-    z.literal("rebuild projects"),
-    z.literal("solve issues")
-]);
+export const OpenSourcePathEnum = z.enum(["rebuild_projects", "solve_issues"]);
 
 export const onboardingSchema = z.object({
-    role: z.string(),
-    skillLevel: z.string(),
-    workPace: WorkPaceUnion,
-    categoryPreference: z.array(ProjectCategoryPreferenceUnion),
-    focus: z.array(z.string()),
-    openSourcePath: OpenSourcePathUnion.optional(),
-    technologies: z.array(z.string()),
+  role: z.string(),
+  skills: z.string().array(),
+  project_types: z.array(ProjectCategoryPreferenceEnum),
+  project_foucus: z.string().array(),
+  skill_level: z.string(),
+  work_pace: WorkPaceEnum,
+  work_types: z.array(OpenSourcePathEnum),
 });
 
-export const onboardingUpdateSchema = z.object({
-    id: z.string(),
-    skillLevel: z.string().optional(),
-    role: z.string().optional(),
-    technologies: z.array(z.string()).optional(),
-    workPace: WorkPaceUnion.optional(),
-    categoryPreference: z.array(ProjectCategoryPreferenceUnion).optional(),
-    focus: z.array(z.string()).optional(),
-    openSourcePath: OpenSourcePathUnion.optional(),
-});
+export type TOnboardingSchema = z.infer<typeof onboardingSchema>;
