@@ -4,7 +4,7 @@ import { sessionTable as sessions } from "@repo/db/src/schema";
 import { getCookie } from "hono/cookie";
 import { eq } from "@repo/db/src/drizzle-functions";
 import { lucia } from "../lib/auth";
-import { Context } from "hono";
+import type { Context } from "hono";
 import { getUserById } from "./users";
 
 export async function deleteSessionForUser(userId: string, trx = db) {

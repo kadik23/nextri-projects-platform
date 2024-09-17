@@ -10,6 +10,7 @@ CREATE TABLE IF NOT EXISTS "account" (
 	"accountType" "type" NOT NULL,
 	"githubId" text,
 	"googleId" text,
+	CONSTRAINT "account_id_unique" UNIQUE("id"),
 	CONSTRAINT "account_githubId_unique" UNIQUE("githubId"),
 	CONSTRAINT "account_googleId_unique" UNIQUE("googleId")
 );
@@ -26,6 +27,7 @@ CREATE TABLE IF NOT EXISTS "project_category_preference" (
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
 	"category_preference" text[] NOT NULL,
 	"focus" text[] NOT NULL,
+	"open_source_path" text,
 	"profile_id" uuid NOT NULL,
 	"updated_at" timestamp
 );
@@ -58,6 +60,7 @@ CREATE TABLE IF NOT EXISTS "user_profile" (
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
 	"user_id" text NOT NULL,
 	"work_pace" text NOT NULL,
+	"open_source_path" text,
 	"updated_at" timestamp
 );
 --> statement-breakpoint

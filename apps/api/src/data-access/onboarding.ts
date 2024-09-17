@@ -1,8 +1,8 @@
 import { db, } from "@repo/db/src";
 import { eq, } from "@repo/db/src/drizzle-functions";
 import { skillTable, userProfileTable, projectCategoryPreferenceTable } from "@repo/db";
-import { ProjectCategoryPreference, workPace } from "../validations/types";
-import { OpenSourcePath } from "@repo/db/src/types";
+import type { ProjectCategoryPreference, workPace } from "../validations/types";
+import type { OpenSourcePath } from "@repo/db/src/types";
 
 export const insertUserOnboarding = async ({
     userId,

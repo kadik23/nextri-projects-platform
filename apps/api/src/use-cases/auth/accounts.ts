@@ -5,39 +5,53 @@ import {
   getAccountByGoogleId,
 } from "../../data-access/accounts";
 import { deleteSessionForUser } from "../../data-access/sessions";
-import { getUserByEmail, insterUser } from "../../data-access/users";
-import { GitHubUser, GoogleUser } from "../../validations/types";
+import { getUserByEmail, insertUser } from "../../data-access/users";
+import type { GitHubUser, GoogleUser } from "../../validations/types";
 
-export async function getAccountByGoogleIdUseCase(googleId: string) {
-  return await getAccountByGoogleId(googleId);
+type ProviderUser = (GoogleUser | GitHubUser);
+
+function isGoogleUser(user: ProviderUser): user is GoogleUser {
+  return user.provider === 'google';
 }
 
-export async function getAccountByGithubIdUseCase(githubId: string) {
-  return await getAccountByGithubId(githubId);
+function isGitHubUser(user: ProviderUser): user is GitHubUser {
+  return user.provider === 'github';
 }
 
-export async function createGoogleUserUseCase(googleUser: GoogleUser) {
-  let existingUser = await getUserByEmail(googleUser.email);
+export async function getAccountByProviderIdUseCase(user: ProviderUser) {
+  if (isGoogleUser(user)) {
+    return await getAccountByGoogleId(user.sub);
+  }
+  if (isGitHubUser(user)) {
+    return await getAccountByGithubId(user.id);
+  }
+  throw new Error("Unsupported provider");
+}
+
+async function createProviderLinkedAccount(providerUser: ProviderUser) {
+  let existingUser = await getUserByEmail(providerUser.email);
 
   if (!existingUser) {
-    existingUser = await insterUser({ email: googleUser.email });
+    existingUser = await insertUser({ email: providerUser.email });
   }
 
-  await createAccountViaGoogle(existingUser?.id!, googleUser.sub);
+  if (!existingUser || !existingUser.id) {
+    throw new Error("Failed to create or retrieve user");
+  }
 
-  return existingUser?.id!;
+  if (isGoogleUser(providerUser)) {
+    await createAccountViaGoogle(existingUser.id, providerUser.sub);
+  } else if (isGitHubUser(providerUser)) {
+    await createAccountViaGithub(existingUser.id, providerUser.id);
+  } else {
+    throw new Error("Unsupported provider");
+  }
+
+  return existingUser.id;
 }
 
-export async function createGithubUserUseCase(githubUser: GitHubUser) {
-  let existingUser = await getUserByEmail(githubUser.email);
-
-  if (!existingUser) {
-    existingUser = await insterUser({ email: githubUser.email });
-  }
-
-  await createAccountViaGithub(existingUser?.id!, githubUser.id);
-
-  return existingUser?.id!;
+export async function createProviderUserUseCase(providerUser: ProviderUser) {
+  return createProviderLinkedAccount(providerUser);
 }
 
 export async function invalidateSessionsUseCase(id: string) {

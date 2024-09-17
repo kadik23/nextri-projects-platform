@@ -44,7 +44,7 @@ export async function getGoogleRedirectUrl(): Promise<
 > {
   try {
     const response = await fetch(
-      "http://localhost:3001/auth/google-redirect-url",
+      "http://localhost:3001/auth/google/authorize",
       {
         method: "GET",
         headers: {
@@ -67,7 +67,7 @@ export async function getGithubRedirectUrl(): Promise<
 > {
   try {
     const response = await fetch(
-      "http://localhost:3001/auth/github-redirect-url",
+      "http://localhost:3001/auth/github/authorize",
       {
         method: "GET",
         credentials: "include",

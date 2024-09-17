@@ -1,7 +1,7 @@
-import { db, eq, userTable, TUser } from "@repo/db";
+import { db, eq, userTable, type TUser } from "@repo/db";
 import { getRandomId } from "../lib/utils";
 
-export const insterUser = async ({ email }: { email: string }) => {
+export const insertUser = async ({ email }: { email: string }) => {
   const [newUser] = await db.insert(userTable).values({
     email,
     id: getRandomId(),

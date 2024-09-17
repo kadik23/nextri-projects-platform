@@ -34,5 +34,5 @@ export const github = new GitHub(
 export const googleAuth = new Google(
   process.env.GOOGLE_CLIENT_ID!,
   process.env.GOOGLE_CLIENT_SECRET!,
-  `http://localhost:3001/auth/google-callback`
+  `http://localhost:3001/auth/google/callback`
 );

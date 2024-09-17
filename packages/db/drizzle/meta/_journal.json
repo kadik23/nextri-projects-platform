@@ -5,29 +5,8 @@
     {
       "idx": 0,
       "version": "7",
-      "when": 1726237953994,
-      "tag": "0000_perpetual_hercules",
-      "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "7",
-      "when": 1726248318722,
-      "tag": "0001_sweet_falcon",
-      "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "7",
-      "when": 1725975928627,
-      "tag": "0001_military_shadowcat",
-      "breakpoints": true
-    },
-    {
-      "idx": 2,
-      "version": "7",
-      "when": 1725983451282,
-      "tag": "0002_concerned_cassandra_nova",
+      "when": 1726489615602,
+      "tag": "0000_numerous_black_crow",
       "breakpoints": true
     }
   ]

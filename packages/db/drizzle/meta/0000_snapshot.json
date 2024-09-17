@@ -1,5 +1,5 @@
 {
-  "id": "219715d9-9078-4954-9af7-db3e02ef0c17",
+  "id": "95322a42-7296-4e38-a5e8-7b66031dd3e8",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -58,6 +58,13 @@
       },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {
+        "account_id_unique": {
+          "name": "account_id_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "id"
+          ]
+        },
         "account_githubId_unique": {
           "name": "account_githubId_unique",
           "nullsNotDistinct": false,
@@ -138,6 +145,12 @@
           "type": "text[]",
           "primaryKey": false,
           "notNull": true
+        },
+        "open_source_path": {
+          "name": "open_source_path",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
         },
         "profile_id": {
           "name": "profile_id",
@@ -359,6 +372,12 @@
           "type": "text",
           "primaryKey": false,
           "notNull": true
+        },
+        "open_source_path": {
+          "name": "open_source_path",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
         },
         "updated_at": {
           "name": "updated_at",

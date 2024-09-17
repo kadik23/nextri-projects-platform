@@ -7,6 +7,7 @@ export type UserProfile = {
 export type UserId = number;
 
 export interface GoogleUser {
+  provider: 'google';
   sub: string;
   name: string;
   given_name: string;
@@ -18,6 +19,7 @@ export interface GoogleUser {
 }
 
 export interface GitHubUser {
+  provider: 'github';
   id: string;
   login: string;
   avatar_url: string;
