@@ -41,50 +41,50 @@ export const getUserOnboarding = async (user_id: string) => {
   };
 };
 
-export const updateUserOnboarding = async (updates: {
-  id: string;
-  workPace?: workPace;
-  technologies?: string[];
-  role?: string;
-  skillLevel?: string;
-  categoryPreference?: ProjectCategoryPreference[];
-  focus?: string[];
-  openSourcePath?: OpenSourcePath;
-}) => {
-  return await db.transaction(async (trx) => {
-    try {
-      const existingOnboarding = await trx
-        .select()
-        .from(userProfileTable)
-        .where(eq(userProfileTable.id, updates.id))
-        .limit(1);
+// export const updateUserOnboarding = async (updates: {
+//   id: string;
+//   workPace?: workPace;
+//   technologies?: string[];
+//   role?: string;
+//   skillLevel?: string;
+//   categoryPreference?: ProjectCategoryPreference[];
+//   focus?: string[];
+//   openSourcePath?: OpenSourcePath;
+// }) => {
+//   return await db.transaction(async (trx) => {
+//     try {
+//       const existingOnboarding = await trx
+//         .select()
+//         .from(userProfileTable)
+//         .where(eq(userProfileTable.id, updates.id))
+//         .limit(1);
 
-      if (!existingOnboarding || existingOnboarding.length === 0) {
-        throw new Error(`No onboarding record found for ID ${updates.id}`);
-      }
+//       if (!existingOnboarding || existingOnboarding.length === 0) {
+//         throw new Error(`No onboarding record found for ID ${updates.id}`);
+//       }
 
-      const updatedProfile = await trx
-        .update(userProfileTable)
-        .set({
-          ...(updates.workPace && { workPace: updates.workPace }),
-          ...(updates.role && { role: updates.role }),
-          ...(updates.technologies && { technologies: updates.technologies }),
-          ...(updates.skillLevel && { skillLevel: updates.skillLevel }),
-          ...(updates.categoryPreference && {
-            categoryPreference: updates.categoryPreference,
-          }),
-          ...(updates.focus && { focus: updates.focus }),
-          ...(updates.openSourcePath && {
-            openSourcePath: updates.openSourcePath,
-          }),
-          ...{ updatedAt: new Date() },
-        })
-        .where(eq(userProfileTable.id, updates.id))
-        .returning();
+//       const updatedProfile = await trx
+//         .update(userProfileTable)
+//         .set({
+//           ...(updates.workPace && { workPace: updates.workPace }),
+//           ...(updates.role && { role: updates.role }),
+//           ...(updates.technologies && { technologies: updates.technologies }),
+//           ...(updates.skillLevel && { skillLevel: updates.skillLevel }),
+//           ...(updates.categoryPreference && {
+//             categoryPreference: updates.categoryPreference,
+//           }),
+//           ...(updates.focus && { focus: updates.focus }),
+//           ...(updates.openSourcePath && {
+//             openSourcePath: updates.openSourcePath,
+//           }),
+//           ...{ updatedAt: new Date() },
+//         })
+//         .where(eq(userProfileTable.id, updates.id))
+//         .returning();
 
-      return { ...updatedProfile };
-    } catch (error: any) {
-      throw new Error(`Failed to update onboarding data: ${error.message}`);
-    }
-  });
-};
+//       return { ...updatedProfile };
+//     } catch (error: any) {
+//       throw new Error(`Failed to update onboarding data: ${error.message}`);
+//     }
+//   });
+// };
