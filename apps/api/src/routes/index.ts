@@ -2,7 +2,12 @@ import { serve } from "@hono/node-server";
 import { Hono } from "hono";
 import authRoutes from "./auth";
 import marketplaceRoutes from "./marketplace";
+<<<<<<< HEAD
 import onboardingRoutes from "./onboarding";
+=======
+import { swaggerUI } from "@hono/swagger-ui";
+import { z } from "zod"
+>>>>>>> 193798b (removed honoOpenapi)
 import * as dotenv from "dotenv";
 import path from "path";
 import { cors } from "hono/cors";
@@ -12,6 +17,7 @@ import { setCookie } from "hono/cookie";
 dotenv.config({ path: path.resolve(__dirname, "../../../../.env") });
 
 const app = new Hono();
+<<<<<<< HEAD
 
 app.use(
   "*",
@@ -20,16 +26,12 @@ app.use(
     credentials: true,
   })
 );
+=======
+>>>>>>> 193798b (removed honoOpenapi)
 
 
 // The openapi.json will be available at /doc
-app.doc("/doc", {
-    openapi: "3.0.0",
-    info: {
-        version: "1.0.0",
-        title: "My API",
-    },
-});
+
 
 
 // app.use("/protected/*", async (c, next) => {
@@ -37,7 +39,6 @@ app.doc("/doc", {
 //   // here validated the request
 //   await next();
 // });
-app.get("/ui", swaggerUI({ url: "/doc" }));
 
 app.route("/auth", authRoutes);
 app.route("/onboarding", onboardingRoutes);
