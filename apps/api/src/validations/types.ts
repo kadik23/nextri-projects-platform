@@ -33,9 +33,22 @@ export interface Email {
   visibility: string | null;
 }
 
+
 export type ProjectCategoryPreference = "freelance" | "open source" | "company";
 export type workPace =
   | "Short-term"
   | "Medium-term"
   | "Long-term"
   | "Specific-task";
+
+
+export interface Prefrences {
+  id: string ,
+  role : string ; 
+  skill_level : string ; 
+  project_type : string ; 
+  project_focus : string[] ;
+  work_type : string ; 
+  work_pace : string ; 
+  techstack :string[] ; 
+}
