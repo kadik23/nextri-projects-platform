@@ -21,12 +21,23 @@ app.use(
   })
 );
 
+
+// The openapi.json will be available at /doc
+app.doc("/doc", {
+    openapi: "3.0.0",
+    info: {
+        version: "1.0.0",
+        title: "My API",
+    },
+});
+
+
 // app.use("/protected/*", async (c, next) => {
 //   console.log(`[${c.req.method}] ${c.req.url}`);
 //   // here validated the request
 //   await next();
 // });
-
+app.get("/ui", swaggerUI({ url: "/doc" }));
 
 app.route("/auth", authRoutes);
 app.route("/onboarding", onboardingRoutes);
