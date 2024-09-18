@@ -4,7 +4,7 @@ import { useState, type FC } from "react";
 import { Button } from "./ui/button";
 import { signOut } from "@/app/_api/authFns";
 
-const LogoutButton: FC = ({}) => {
+const LogoutButton: FC = () => {
   const [loading, setIsLoading] = useState<boolean>(false);
 
   return (
