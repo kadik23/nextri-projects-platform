@@ -11,18 +11,12 @@ const page: FC = async () => {
     authSession: cookies().get("auth_session")?.value ?? null,
   });
 
-  //   <div className="w-full h-screen flex flex-col items-center justify-center">
-  //   <Link
-  //     href="/auth"
-  //     className="px-6 py-6 rounded-md font-bold text-xl bg-white border-2 border-primary text-primary w-fit transition-all shadow-[4px_4px_0px_black] hover:shadow-none hover:translate-x-[4px] hover:translate-y-[4px]"
-  //   >
-  //     Explore different project
-  //   </Link>
-  // </div>
+  console.log("this is the cookie", cookies().get("auth_session")?.value);
+  console.log("this is to see if the value is onboarded ", onboardedOrNot);
 
   return (
     <>
-      <div className="bg-white w-full ">
+      <div className=" w-full flex flex-col items-center">
         <MaxWidthWrapper>
           <div className="w-full h-[400px] grid grid-cols-3 ">
             <div className="flex flex-col justify-center p-4 gap-y-4 col-span-2">

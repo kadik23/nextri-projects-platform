@@ -14,15 +14,19 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import LogoutButton from "./logout-button";
+import { Button } from "./ui/button";
 
 export default function UserNav() {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Avatar className="cursor-pointer">
-          <AvatarImage src="https://github.com/shadcn.png" alt="@shadcn" />
-          <AvatarFallback>CN</AvatarFallback>
-        </Avatar>
+        <Button variant={"ghost"} className="w-full cursor-pointer space-x-2 ">
+          <Avatar className="w-6 h-6">
+            <AvatarImage src="https://github.com/shadcn.png" alt="@abdellah" />
+            <AvatarFallback>CN</AvatarFallback>
+          </Avatar>
+          <span className="text-lg"> abdellah chehri</span>
+        </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-56" align="end">
         <DropdownMenuLabel>My Account</DropdownMenuLabel>
