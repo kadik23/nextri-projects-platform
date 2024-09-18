@@ -1,13 +1,11 @@
-import { Context } from "hono";
-import { loadEnvFile } from "process";
-import {get_profile_preferences,getBookmarks,addToBookmarks,deleteFromBookmark,applyToProject} from "./marketplaceRepository"
-import { Prefrences } from "../validations/types";
 
+import {Hono} from "hono"
+import {get_profile_preferences,getBookmarks,addToBookmarks,deleteFromBookmark,applyToProject} from "../data-access/marketplace"
 
-class marketplaceController {
+const marketplaceRoutes = new Hono();
 
-    async get_Projects_Marketplace_by_Prefences(c:Context){
-        
+    //get projects based on the user prefrence (must provide , user_id and profile_id )
+    marketplaceRoutes.get("/marketplace",async (c)=>{
         /*
             get profile id , 
             retrieve his prefrences from the database
@@ -23,10 +21,14 @@ class marketplaceController {
         const filtred_projects =await  this.filter_projects(profile_prefrences)
 
         return c.json(filtred_projects)*/
-    }
+    })
 
-    async apply_to_project(c:Context){
 
+
+
+    // apply to a project , i will need the project_id from the request body , profile id , i can get it from the session token 
+    marketplaceRoutes.post("/marketplace",async (c)=>{
+        
         //needs to get the profile id from the seesion token 
         let profile_id= "";
         const body = await c.req.json();
@@ -49,27 +51,25 @@ class marketplaceController {
             console.log("error happned while applying to project : ",err);
             console.error(err);
         }
+    })
 
-    }
-
-
-
-    async get_Profile_bookmarks(c:Context) {
-        
+    // returns a list of bookmarked projects by the user 
+    marketplaceRoutes.get("/marketplace/bookmarks",async (c)=>{
         /* 
             get profile id from session_id, 
             retrieve his bookmarks from the database 
             return it to the user 
         */
-        let profile_id = " ";
-        const bookmarks = await getBookmarks(profile_id)
+            let profile_id = " ";
+            const bookmarks = await getBookmarks(profile_id)
+    
+            return c.json(bookmarks);
+    })
 
-        return c.json(bookmarks);
-    }
-
-
-    async add_project_to_bookmarks(c:Context){
-
+    //add a project to the profile bookmarks
+    marketplaceRoutes.post("/marketplace/bookmarks",async (c)=>{
+        
+        
         /*
             get profile id from session_id
             add the project id to the profile id bookmarks 
@@ -96,47 +96,43 @@ class marketplaceController {
             console.error(error)
 
         }
-    }
+    })
 
-    async delete_project_from_bookmarks(c:Context){
+    //remove from the bookmark
+    marketplaceRoutes.delete("/marketplace/bookmarks/:id",async (c)=>{
+        
 
         /*  
             get profile id from session_id
             remove from db 
             */    
-        let profile_id ="";
-        const project_id = c.req.param("id") ;
-
-        if(!project_id){
-
-            return c.json({status:"no id provided "},400)
-
-        }
-
-
-        try{
-
-            const qresult = await deleteFromBookmark(profile_id,project_id);
-
-            return c.json({status: "deleted with sucess "},200); 
-
-
-        }catch(err){
-            console.log("error in deleting a bookmark", err);
-            console.error(err);
-
-            return c.json({status : "error in delete operation "},500)
-        }
-
-        
-
-    }
-
-    async filter_projects(prefrences : Prefrences){
-        // you give him the prefences as input and his retuns a list or array of (matched projects )
-    }
+            let profile_id ="";
+            const project_id = c.req.param("id") ;
+    
+            if(!project_id){
+    
+                return c.json({status:"no id provided "},400)
+    
+            }
+    
+    
+            try{
+    
+                const qresult = await deleteFromBookmark(profile_id,project_id);
+    
+                return c.json({status: "deleted with sucess "},200); 
+    
+    
+            }catch(err){
+                console.log("error in deleting a bookmark", err);
+                console.error(err);
+    
+                return c.json({status : "error in delete operation "},500)
+            }
+    
+            
+    
+    })
 
 
-}
-
-export default marketplaceController ; 
+    export default marketplaceRoutes ; 
