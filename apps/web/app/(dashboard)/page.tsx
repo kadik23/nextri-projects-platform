@@ -1,7 +1,6 @@
 import { isUserOnboarded } from "@/api/onboarding";
 import MaxWidthWrapper from "@/components/max-width-wrapper";
 import { OnboardingDialog } from "@/components/modals/onboading-modal";
-import Image from "next/image";
 import Link from "next/link";
 import type { FC } from "react";
 import { cookies } from "next/headers";
@@ -32,15 +31,7 @@ const page: FC = async () => {
               </Link>
             </div>
 
-            <div className="w-full h-[400px] relative col-span-1">
-              <Image
-                alt="ballon images"
-                src={"/gifts.svg"}
-                fill
-                loading="eager"
-                className="object-contain"
-              />
-            </div>
+            <div className="w-full h-[400px] relative col-span-1"></div>
           </div>
         </MaxWidthWrapper>
       </div>
