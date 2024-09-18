@@ -3,7 +3,6 @@ import { Hono } from "hono";
 import authRoutes from "./auth";
 import marketplaceRoutes from "./marketplace";
 import { swaggerUI } from "@hono/swagger-ui";
-import { OpenAPIHono,createRoute  } from "@hono/zod-openapi";
 import { z } from "zod"
 import * as dotenv from "dotenv";
 import path from "path";
@@ -11,17 +10,11 @@ import path from "path";
 // Load environment variables from the root .env file
 dotenv.config({ path: path.resolve(__dirname, "../../../../.env") });
 
-const app = new OpenAPIHono();
+const app = new Hono();
 
 
 // The openapi.json will be available at /doc
-app.doc("/doc", {
-    openapi: "3.0.0",
-    info: {
-        version: "1.0.0",
-        title: "My API",
-    },
-});
+
 
 
 // app.use("/protected/*", async (c, next) => {
@@ -29,7 +22,6 @@ app.doc("/doc", {
 //   // here validated the request
 //   await next();
 // });
-app.get("/ui", swaggerUI({ url: "/doc" }));
 
 app.route("/auth", authRoutes);
 
