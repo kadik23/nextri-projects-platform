@@ -43,6 +43,7 @@ import { Badge } from "../ui/badge";
 import { cn } from "@/lib/utils";
 import { onbordUser } from "@/api/onboarding";
 import { useMutation } from "@tanstack/react-query";
+import toast from "react-hot-toast";
 
 export const WorkPaceEnum = z.enum([
   "short_term",
@@ -130,9 +131,17 @@ export function OnboardingDialog({ initialValue }: { initialValue: boolean }) {
 
       setOpen(false);
 
-      // display toasts here
+      toast("you have been successfully onboarded!", {
+        icon: "👏",
+        style: {
+          borderRadius: "3px",
+          background: "#333",
+          color: "#fff",
+        },
+      });
     } catch (err) {
       console.log(err);
+      toast.error("This didn't work.");
     }
   }
 
