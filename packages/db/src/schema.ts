@@ -1,4 +1,5 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { pgEnum, pgTable, text, timestamp, uuid } from "drizzle-orm/pg-core";
 import { OpenSourcePath, ProjectCategoryPreference, workPace } from "./types";
 
@@ -7,6 +8,11 @@ import { datetime, foreignKey } from "drizzle-orm/mysql-core";
 import { pgEnum, pgTable, text, timestamp,PgArray, primaryKey, PrimaryKey, PrimaryKeyBuilder } from "drizzle-orm/pg-core";
 import bytea from "drizzle-orm/pg-core";
 >>>>>>> 54547bd (market place feature)
+=======
+import { datetime, foreignKey } from "drizzle-orm/mysql-core";
+import { pgEnum, pgTable, text, timestamp,PgArray, primaryKey, PrimaryKey, PrimaryKeyBuilder } from "drizzle-orm/pg-core";
+import bytea from "drizzle-orm/pg-core";
+>>>>>>> 193798b8480ba9944e6d8f5ef41b9aa103849f20
 export const accountTypeEnum = pgEnum("type", ["email", "google", "github"]);
 
 export const userTable = pgTable("user", {
