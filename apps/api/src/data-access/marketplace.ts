@@ -31,7 +31,7 @@ export async function applyToProject(profile_id:string , project_id :string ){
             project_id : project_id
         })
     
-        console.log("applying done successfuly ")
+        console.log("applying done successfully ")
     }catch(error){
         console.error('Error occured when applying to project :', error);
         throw new Error('Unable to apply to the project '); 
@@ -109,3 +109,5 @@ export async function deleteFromBookmark(inserted_profile_id : string , deleted_
 
 
 }
+
+

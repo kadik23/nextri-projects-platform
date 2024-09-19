@@ -1,6 +1,7 @@
 import { serve } from "@hono/node-server";
 import { Hono } from "hono";
 import authRoutes from "./auth";
+import marketplaceRoutes from "./marketplace";
 import onboardingRoutes from "./onboarding";
 import * as dotenv from "dotenv";
 import path from "path";
@@ -26,10 +27,13 @@ app.use(
 //   await next();
 // });
 
+
 app.route("/auth", authRoutes);
 app.route("/onboarding", onboardingRoutes);
 
-app.get("/", (c) => {
+app.route("/",marketplaceRoutes);
+
+app.get("/", async (c) => {
   setCookie(c, "abdellah cookie", "hada hia value", {
     path: "/",
     secure: process.env.NODE_ENV === "production", // Only secure in production
