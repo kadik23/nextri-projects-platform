@@ -5,13 +5,13 @@ export function middleware(req: NextRequest) {
   const token = req.cookies.get("auth_session")?.value;
   const url = req.nextUrl.clone();
 
-  if (!token && url.pathname.startsWith("/dashboard")) {
+  if (!token) {
     url.pathname = "/auth";
     return NextResponse.redirect(url);
   }
 
   if (token && url.pathname.startsWith("/auth")) {
-    url.pathname = "/dashboard";
+    url.pathname = "/";
     return NextResponse.redirect(url);
   }
 
@@ -19,5 +19,5 @@ export function middleware(req: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/dashboard", "/auth"],
+  matcher: ["/"],
 };

@@ -1,6 +1,9 @@
-import { AUTH_TOKEN_LENGTH, SHORT_LIVED_AUTH_TOKEN_DURATION } from "../../config/constants";
+import {
+  AUTH_TOKEN_LENGTH,
+  SHORT_LIVED_AUTH_TOKEN_DURATION,
+} from "../../config/constants";
 import { generateRandomToken, getRandomId } from "../lib/utils";
-import { magicLinksTable, userTable, eq, db } from "@repo/db";
+import { magicLinksTable, eq, db } from "@repo/db";
 
 export async function upsertMagicLink(email: string) {
   const token = await generateRandomToken(AUTH_TOKEN_LENGTH);

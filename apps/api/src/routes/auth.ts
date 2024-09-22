@@ -17,17 +17,14 @@ import {
   getAccountByProviderIdUseCase,
   createProviderUserUseCase,
 } from "../use-cases/auth/accounts";
-import {
-  deleteSessionForUser,
-  getUserId,
-} from "../data-access/sessions";
+import { deleteSessionForUser, getUserId } from "../data-access/sessions";
 
 const auth = new Hono();
 
 const FRONTEND_URL = process.env.FRONTEND_URL || "http://localhost:3000";
 
 type OAuthProvider = {
-  name: 'google' | 'github';
+  name: "google" | "github";
   authInstance: typeof googleAuth | typeof github;
   userInfoUrl: string;
   scopes: string[];
@@ -35,20 +32,25 @@ type OAuthProvider = {
 
 const OAUTH_PROVIDERS: Record<string, OAuthProvider> = {
   google: {
-    name: 'google',
+    name: "google",
     authInstance: googleAuth,
     userInfoUrl: "https://openidconnect.googleapis.com/v1/userinfo",
     scopes: ["profile", "email"],
   },
   github: {
-    name: 'github',
+    name: "github",
     authInstance: github,
     userInfoUrl: "https://api.github.com/user",
     scopes: ["user:email"],
   },
 };
 
-const setSecureCookie = (c: Context, name: string, value: string, maxAge: number) => {
+const setSecureCookie = (
+  c: Context,
+  name: string,
+  value: string,
+  maxAge: number
+) => {
   setCookie(c, name, value, {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
@@ -56,7 +58,7 @@ const setSecureCookie = (c: Context, name: string, value: string, maxAge: number
     path: "/",
     maxAge,
   });
-}
+};
 
 const getPrimaryEmail = (emails: Email[]): string => {
   const primaryEmail = emails.find((email) => email.primary);
@@ -66,24 +68,42 @@ const getPrimaryEmail = (emails: Email[]): string => {
   }
 
   return primaryEmail.email;
-}
+};
 
 const handleOAuthError = (c: Context, error: unknown) => {
-
   if (error instanceof OAuth2RequestError) {
-    return c.json({ success: false, error: "OAuth request failed", details: error.message }, 400);
+    return c.json(
+      { success: false, error: "OAuth request failed", details: error.message },
+      400
+    );
   }
 
   if (error instanceof TypeError && error.message === "fetch failed") {
     const cause = (error as any).cause;
     if (cause?.code === "UND_ERR_CONNECT_TIMEOUT") {
-      return c.json({ success: false, error: "Connection timeout", details: "Unable to reach the authentication server. Please try again later." }, 503);
+      return c.json(
+        {
+          success: false,
+          error: "Connection timeout",
+          details:
+            "Unable to reach the authentication server. Please try again later.",
+        },
+        503
+      );
     }
   }
 
   console.error("Unexpected error during OAuth:", error);
 
-  return c.json({ success: false, error: "An unexpected error occurred during authentication", details: "Please try again later or contact support if the problem persists." }, 500);
+  return c.json(
+    {
+      success: false,
+      error: "An unexpected error occurred during authentication",
+      details:
+        "Please try again later or contact support if the problem persists.",
+    },
+    500
+  );
 };
 
 auth.get("/:provider/authorize", async (c) => {
@@ -96,9 +116,13 @@ auth.get("/:provider/authorize", async (c) => {
   const state = generateState();
   const codeVerifier = generateCodeVerifier();
 
-  const url = await provider.authInstance.createAuthorizationURL(state, codeVerifier, {
-    scopes: provider.scopes,
-  });
+  const url = await provider.authInstance.createAuthorizationURL(
+    state,
+    codeVerifier,
+    {
+      scopes: provider.scopes,
+    }
+  );
 
   setSecureCookie(c, `${provider.name}_oauth_state`, state, 600);
   setSecureCookie(c, `${provider.name}_code_verifier`, codeVerifier, 600);
@@ -126,16 +150,22 @@ auth.get("/:provider/callback", async (c) => {
     state !== storedState ||
     !codeVerifier
   ) {
-    return c.json({ success: false, error: "Invalid OAuth callback parameters" }, 400);
+    return c.json(
+      { success: false, error: "Invalid OAuth callback parameters" },
+      400
+    );
   }
 
   try {
-    const tokens = await provider.authInstance.validateAuthorizationCode(code, codeVerifier);
+    const tokens = await provider.authInstance.validateAuthorizationCode(
+      code,
+      codeVerifier
+    );
     const response = await fetch(provider.userInfoUrl, {
       headers: { Authorization: `Bearer ${tokens.accessToken}` },
     });
     const providerUser: GoogleUser | GitHubUser = await response.json();
-    if (provider.name === 'github' && !providerUser.email) {
+    if (provider.name === "github" && !providerUser.email) {
       const emailsResponse = await fetch("https://api.github.com/user/emails", {
         headers: { Authorization: `Bearer ${tokens.accessToken}` },
       });
@@ -150,10 +180,17 @@ auth.get("/:provider/callback", async (c) => {
     }
 
     const existingAccount = await getAccountByProviderIdUseCase(providerUser);
-    const userId = existingAccount ? existingAccount.userId : await createProviderUserUseCase(providerUser);
+    const userId = existingAccount
+      ? existingAccount.userId
+      : await createProviderUserUseCase(providerUser);
     const sessionCookie = await createSessionCookie(userId);
 
-    setSecureCookie(c, sessionCookie.name, sessionCookie.value, 60 * 60 * 24 * 30);
+    setSecureCookie(
+      c,
+      sessionCookie.name,
+      sessionCookie.value,
+      60 * 60 * 24 * 30
+    );
 
     return c.redirect(FRONTEND_URL, 302);
   } catch (error) {

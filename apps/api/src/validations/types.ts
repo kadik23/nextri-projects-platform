@@ -35,11 +35,8 @@ export interface Email {
 
 
 export type ProjectCategoryPreference = "freelance" | "open source" | "company";
-export type workPace =
-  | "Short-term"
-  | "Medium-term"
-  | "Long-term"
-  | "Specific-task";
+
+
 
 
 export interface Prefrences {
@@ -52,3 +49,8 @@ export interface Prefrences {
   work_pace : string ; 
   techstack :string[] ; 
 }
+export type WorkPace =
+  | "Short_term"
+  | "Medium_term"
+  | "Long_term"
+  | "Specific_task";
