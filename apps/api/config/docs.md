@@ -187,14 +187,17 @@ const callbackUrl =
 handleGithubCallback(callbackUrl).catch((err) => console.error(err));
 ```
 
-### 7. **GET `/onboarding/:userId`**
+### 7. **GET `/onboarding`**
 
 ```typescript
 import fetch from "node-fetch";
 
 async function getOnboardingData(userId: string): Promise<void> {
-  const response = await fetch(`http://localhost:3001/onboarding/${userId}`, {
+  const response = await fetch(`http://localhost:3001/onboarding`, {
     method: "GET",
+    headers:{
+      "Cookie": 'auth_session=your_session'
+    }
   });
 
   if (response.ok) {
@@ -211,34 +214,32 @@ getOnboardingData(userId).catch((err) => console.error(err));
 
 ```
 
-### 8. **POST `/onboarding/:userId`**
+### 8. **POST `/onboarding`**
 
 ```typescript
 import fetch from "node-fetch";
 
-async function createOnboarding(userId: string, data: {
-  userId: string,
+async function createOnboarding(data: {
   role: string,
   skillLevel: string,
   workPace: string,
   technologies: string[],
-  projectCategoryPreference?: {
-    categoryPreference: ProjectCategoryPreference[];
-    focus: string[];
-    openSourcePath?: OpenSourcePath
-  };
+  categoryPreference: ProjectCategoryPreference[];
+  focus: string[];
+  openSourcePath?: OpenSourcePath
 }): Promise<void> {
   const response = await fetch(`http://localhost:3001/onboarding`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
+      "Cookie": 'auth_session=your_session'
     },
     body: JSON.stringify(data),
   });
 
   if (response.ok) {
     const result = await response.json();
-    console.log("Onboarding created:", result);
+    console.log("New Onboarding created:", result);
   } else {
     console.error("Failed to create onboarding");
   }
@@ -246,16 +247,13 @@ async function createOnboarding(userId: string, data: {
 
 // Usage
 const data = {
-  userId = "your-user-id",
   role: "Developer",
   skillLevel: "Intermediate",
   workPace: "Short-term,
   technologies: ["Node.js", "React"],
-  projectCategoriesPreference: {
-    categoryPreference: ["freelance", "open source"],
-    focus: ["crm"],
-    openSourcePath: "rebuild projects",
-  }
+  categoryPreference: ["freelance", "open source"],
+  focus: ["crm"],
+  openSourcePath: "rebuild projects",
 };
 createOnboarding(data).catch((err) => console.error(err));
 
@@ -267,21 +265,21 @@ createOnboarding(data).catch((err) => console.error(err));
 
 import fetch from "node-fetch";
 
-async function updateOnboarding(userId: string, data: {
+async function updateOnboarding( data: {
+  id: string,
   role?: string,
   skillLevel?: string,
   workPace?: string,
   technologies?: string[],
-  projectCategoryPreference?: {
-    categoryPreference: ProjectCategoryPreference[];
-    focus: string[];
-    openSourcePath?: OpenSourcePath
-  };
+  categoryPreference?: ProjectCategoryPreference[];
+  focus?: string[];
+  openSourcePath?: OpenSourcePath
 }): Promise<void> {
-  const response = await fetch(`http://localhost:3001/onboarding/${userId}`, {
+  const response = await fetch(`http://localhost:3001/onboarding`, {
     method: "PUT",
     headers: {
       "Content-Type": "application/json",
+      "Cookie": 'auth_session=your_session'
     },
     body: JSON.stringify(data),
   });
@@ -295,27 +293,19 @@ async function updateOnboarding(userId: string, data: {
 }
 
 // Usage
-const userId = "your-user-id";
 const updateData = {
-    projectCategoryPreference:{
-        categoryPreference: ["open source"],
-        focus:["crm","ai"],
-        openSourcePath: "rebuild projects"
-    },
+    id: "onboarding-id"
+    categoryPreference: ["open source"],
+    focus:["crm","ai"],
+    openSourcePath: "rebuild projects"
     workPace: "Long-term",
-    skills: [
-      {
-      skillLevel: "Intermediate",
-      technologies: ["laravel", "hono js"],
-      role: "backend"
-      },
-      {
-      skillLevel: "Intermediate",
-      technologies: ["svelte js", "tailwind"],
-      role:"frontend"
-      }
-    ]
+    skillLevel: "Intermediate",
+    technologies: ["laravel", "hono js"],
+    role: "backend"
+    skillLevel: "Intermediate",
+    technologies: ["svelte js", "tailwind"],
+    role:"frontend"
 };
-updateOnboarding(userId, updateData).catch((err) => console.error(err));
+updateOnboarding(updateData).catch((err) => console.error(err));
 
 ```

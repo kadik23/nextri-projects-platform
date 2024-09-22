@@ -58,7 +58,7 @@ export const PROJECT_TYPES: Option[] = [
   },
   {
     label: "🏢 Company Projects",
-    value: "company_projects",
+    value: "company",
   },
 ];
 
@@ -401,10 +401,10 @@ export const TECH_STACKS = [
 export const WORK_TYPES: Option[] = [
   {
     label: "Work on specific tasks 🔧",
-    value: "specific_tasks",
+    value: "solve_issues",
   },
   {
     label: "Contribute to the whole project 🌍",
-    value: "whole_project",
+    value: "rebuild_projects",
   },
 ];

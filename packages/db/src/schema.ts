@@ -3,15 +3,33 @@ import { OpenSourcePath, ProjectCategoryPreference, workPace } from "./types";
 
 export const accountTypeEnum = pgEnum("type", ["email", "google", "github"]);
 
+export const ProjectCategoryEnum = pgEnum("project_type", [
+  "freelance",
+  "open_source",
+  "company",
+]);
+
+export const WorkPaceEnum = pgEnum("work_pace", [
+  "short_term",
+  "medium_term",
+  "long_term",
+  "specific_task",
+]);
+
+export const WorkTypeEnum = pgEnum("work_type", [
+  "rebuild_projects",
+  "solve_issues",
+]);
+
 export const userTable = pgTable("user", {
-  id: text("id").primaryKey().notNull(),
+  id: text("id").primaryKey(),
   email: text("email").unique(),
   createdAt: timestamp("created_at"),
   updatedAt: timestamp("updated_at"),
 });
 
 export const accountTable = pgTable("account", {
-  id: text("id").primaryKey().notNull().unique(),
+  id: text("id").primaryKey(),
   userId: text("userId")
     .notNull()
     .references(() => userTable.id, { onDelete: "cascade" }),
@@ -39,42 +57,21 @@ export const magicLinksTable = pgTable("magic_links", {
 });
 
 export const userProfileTable = pgTable("user_profile", {
-  id: uuid("id").primaryKey().defaultRandom(),
+  id: text("id").primaryKey(),
   userId: text("user_id")
     .notNull()
     .references(() => userTable.id),
-  workPace: text("work_pace").$type<workPace>().notNull(),
-  openSourcePath: text("open_source_path"),
-  updatedAt: timestamp("updated_at"),
-});
-
-export const skillTable = pgTable("skill", {
-  id: uuid("id").primaryKey().defaultRandom(),
-  profileId: uuid("profile_id")
-    .notNull()
-    .references(() => userProfileTable.id, { onDelete: "cascade" }),
-  role: text("role").notNull(),
+  workPace: WorkPaceEnum("work_pace").notNull(),
   skillLevel: text("skill_level").notNull(),
-  technologies: text("technologies").array().notNull(),
+  role: text("role").notNull(),
+  skills: text("skills").array().notNull(),
+  categoryPreference: ProjectCategoryEnum("category_preference")
+    .array()
+    .notNull(),
+  focus: text("focus").array().notNull(),
+  work_types: WorkTypeEnum("work_type").array(),
   updatedAt: timestamp("updated_at"),
 });
-
-export const projectCategoryPreferenceTable = pgTable(
-  "project_category_preference",
-  {
-    id: uuid("id").primaryKey().defaultRandom(),
-    categoryPreference: text("category_preference")
-      .$type<ProjectCategoryPreference>()
-      .array()
-      .notNull(),
-    focus: text("focus").array().notNull(),
-    openSourcePath: text("open_source_path").$type<OpenSourcePath>(),
-    profileId: uuid("profile_id")
-      .notNull()
-      .references(() => userProfileTable.id, { onDelete: "cascade" }),
-    updatedAt: timestamp("updated_at"),
-  }
-);
 
 export const userDetailsTable = pgTable("user_detail", {
   id: text("id").primaryKey(),

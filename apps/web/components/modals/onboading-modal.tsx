@@ -30,7 +30,6 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { MultiSelect } from "../multi-select";
-
 import {
   PROJECT_DURATIONS,
   PROJECT_FOCUS,
@@ -41,36 +40,69 @@ import {
   WORK_TYPES,
 } from "@/config/data";
 import { Badge } from "../ui/badge";
-import { cn, fetcher } from "@/lib/utils";
-import { BASE_URL } from "@/config/application";
+import { cn } from "@/lib/utils";
+import { onbordUser } from "@/api/onboarding";
+import { useMutation } from "@tanstack/react-query";
+import toast from "react-hot-toast";
 
-const formSchema = z.object({
+export const WorkPaceEnum = z.enum([
+  "short_term",
+  "medium_term",
+  "long_term",
+  "specific_task",
+]);
+
+export const ProjectCategoryPreferenceEnum = z.enum([
+  "freelance",
+  "open_source",
+  "company",
+]);
+
+export const OpenSourcePathEnum = z.enum(["rebuild_projects", "solve_issues"]);
+
+export const formSchema = z.object({
   role: z.string(),
   skills: z.string().array(),
-  project_types: z.string().array(),
+  project_types: z.array(ProjectCategoryPreferenceEnum),
   project_foucus: z.string().array(),
   skill_level: z.string(),
-  work_pace: z.string(),
-  work_types: z.string().array(),
+  work_pace: WorkPaceEnum,
+  work_types: z.array(OpenSourcePathEnum),
 });
 
-export function OnboardingDialog() {
+export type TOnboardingSchema = z.infer<typeof formSchema>;
+
+export function OnboardingDialog({ initialValue }: { initialValue: boolean }) {
   const [formStep, setFormStep] = useState<number>(0);
-  const [open, setOpen] = useState<boolean>(true);
+  const [open, setOpen] = useState<boolean>(initialValue);
 
   const [isEnabled, setIsEnabled] = useState<boolean>(true);
 
-  const form = useForm<z.infer<typeof formSchema>>({
+  const mutation = useMutation({
+    mutationFn: (data: TOnboardingSchema) => onbordUser(data),
+  });
+
+  const form = useForm<TOnboardingSchema>({
     resolver: zodResolver(formSchema),
     defaultValues: {},
   });
 
-  // use useQuery to hanle data submition
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "ArrowRight" && formStep < 3 && !isEnabled) {
+        setFormStep((prevStep) => prevStep + 1);
+      } else if (event.key === "ArrowLeft" && formStep > 0) {
+        setFormStep((prevStep) => prevStep - 1);
+      } else if (event.key === "Enter" && formStep === 3 && !isEnabled) {
+        form.handleSubmit(onSubmit)();
+      }
+    };
 
-  const postData = fetcher(`${BASE_URL}/onboarding`, {
-    method: "POST",
-    body: JSON.stringify({}),
-  });
+    window.addEventListener("keydown", handleKeyDown);
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [formStep, isEnabled]);
 
   useEffect(() => {
     const isNextButtonDisabled = (): boolean => {
@@ -93,8 +125,24 @@ export function OnboardingDialog() {
     setIsEnabled(isNextButtonDisabled());
   }, [formStep, form.formState]);
 
-  function onSubmit(values: z.infer<typeof formSchema>) {
-    console.log(values); // Handle form submission (e.g., API call)
+  async function onSubmit(values: z.infer<typeof formSchema>) {
+    try {
+      await mutation.mutateAsync(values);
+
+      setOpen(false);
+
+      toast("you have been successfully onboarded!", {
+        icon: "👏",
+        style: {
+          borderRadius: "3px",
+          background: "#333",
+          color: "#fff",
+        },
+      });
+    } catch (err) {
+      console.log(err);
+      toast.error("This didn't work.");
+    }
   }
 
   return (
@@ -493,11 +541,34 @@ export function OnboardingDialog() {
               {/* Submit Button (only shows on final step) */}
               {formStep === 3 && (
                 <Button
+                  disabled={mutation.isPending}
                   type="submit"
                   form="onboarding-form"
                   className="btn-primary"
                 >
-                  Submit
+                  {mutation.isPending && (
+                    <svg
+                      className={"mr-2 h-5 w-5 animate-spin text-inverted"}
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                    >
+                      <circle
+                        className="opacity-25"
+                        cx="12"
+                        cy="12"
+                        r="10"
+                        stroke="currentColor"
+                        strokeWidth="4"
+                      />
+                      <path
+                        className="opacity-75"
+                        fill="currentColor"
+                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                      />
+                    </svg>
+                  )}
+                  submit
                 </Button>
               )}
             </DialogFooter>
