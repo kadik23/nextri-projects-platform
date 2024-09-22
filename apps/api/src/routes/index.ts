@@ -1,6 +1,7 @@
 import { serve } from "@hono/node-server";
 import { Hono } from "hono";
 import authRoutes from "./auth";
+import marketplaceRoutes from "./marketplace";
 import onboardingRoutes from "./onboarding";
 import * as dotenv from "dotenv";
 import path from "path";
@@ -20,6 +21,11 @@ app.use(
   })
 );
 
+
+// The openapi.json will be available at /doc
+
+
+
 // app.use("/protected/*", async (c, next) => {
 //   console.log(`[${c.req.method}] ${c.req.url}`);
 //   // here validated the request
@@ -29,7 +35,9 @@ app.use(
 app.route("/auth", authRoutes);
 app.route("/onboarding", onboardingRoutes);
 
-app.get("/", (c) => {
+app.route("/",marketplaceRoutes);
+
+app.get("/", async (c) => {
   setCookie(c, "abdellah cookie", "hada hia value", {
     path: "/",
     secure: process.env.NODE_ENV === "production", // Only secure in production
