@@ -17,6 +17,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import Filter from "@/components/marketplace/Filter";
 
 interface CareerPath {
   id: number;
@@ -60,6 +61,7 @@ const careerPaths: CareerPath[] = [
 ];
 
 const Page: React.FC = () => {
+  const [openFilter, setOpenFilter] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [filter, setFilter] = useState<string | undefined>(undefined);
   const [sortOption, setSortOption] = useState<string | undefined>("title");
@@ -110,21 +112,14 @@ const Page: React.FC = () => {
             <SelectItem value="category">Sort by Category</SelectItem>
           </SelectContent>
         </Select>
-        <Select value={filter} onValueChange={setFilter}>
-          <SelectTrigger className="w-52 py-3 rounded-md basis-[13%]">
-            <SelectValue placeholder="Filter by category" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All Categories</SelectItem>
-            <SelectItem value="Web Development">Web Development</SelectItem>
-            <SelectItem value="Mobile Development">
-              Mobile Development
-            </SelectItem>
-            <SelectItem value="Data Science">Data Science</SelectItem>
-            <SelectItem value="Infrastructure">Infrastructure</SelectItem>
-          </SelectContent>
-        </Select>
+        <button
+          onClick={() => setOpenFilter(!openFilter)}
+          className="w-52  rounded-md basis-[13%] border"
+        >
+          Sort By Filter
+        </button>
       </div>
+      {openFilter && <Filter />}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {filteredPaths.map((path) => (
           <Card key={path.id} className="shadow-md rounded-md">
