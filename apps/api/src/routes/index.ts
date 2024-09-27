@@ -4,7 +4,7 @@ import authRoutes from "./auth";
 import marketplaceRoutes from "./marketplace";
 import onboardingRoutes from "./onboarding";
 import * as dotenv from "dotenv";
-import path from "path";
+import path from "node:path";
 import { cors } from "hono/cors";
 import { setCookie } from "hono/cookie";
 

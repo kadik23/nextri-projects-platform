@@ -1,113 +1,98 @@
-
-
-import { accountTable, db, eq, prefrencesTable,projectsTable, profileBookmarks,project_users } from "@repo/db";
-import { aliasedTable, and , inArray,SQL,sql} from "drizzle-orm"
+import {
+  db,
+  eq,
+  prefrencesTable,
+  projectsTable,
+  profileBookmarks,
+  project_users,
+} from "@repo/db";
+import { aliasedTable, and, sql } from "drizzle-orm";
 import { getRandomId } from "../lib/utils";
 
-import { Prefrences } from "../validations/types";
-import { alias } from "drizzle-orm/mysql-core";
-import { error } from "console";
-import { resourceUsage } from "process";
+import type { Prefrences } from "../validations/types";
+import { error } from "node:console";
 
-
-export async function get_profile_preferences(profile_id : string ){
-    
-    /*
+export async function get_profile_preferences(profile_id: string) {
+	/*
         excute a qeury that returns the prefrences based on profile_id 
     */
-        const prefrences = await db.query.prefrencesTable.findFirst({
-            where: eq(prefrencesTable.id, profile_id),
-        });
-    return prefrences; 
+  const prefrences = await db.query.prefrencesTable.findFirst({
+    where: eq(prefrencesTable.id, profile_id),
+  });
+  return prefrences;
 }
 
+export async function applyToProject(profile_id: string, project_id: string) {
+  try {
+    const result = await db.insert(project_users).values({
+      id: getRandomId(),
+      profile_id: profile_id,
+      project_id: project_id,
+    });
 
-export async function applyToProject(profile_id:string , project_id :string ){
-
-    try{
-        const result = await db.insert(project_users).values({
-            id: getRandomId(),
-            profile_id : profile_id,
-            project_id : project_id
-        })
-    
-        console.log("applying done successfully ")
-    }catch(error){
-        console.error('Error occured when applying to project :', error);
-        throw new Error('Unable to apply to the project '); 
-    }
-
-
-
+    console.log("applying done successfully ");
+  } catch (error) {
+    console.error("Error occured when applying to project :", error);
+    throw new Error("Unable to apply to the project ");
+  }
 }
 
-export async function filterProjects(prefrences : Prefrences){
+export async function filterProjects(prefrences: Prefrences) {
+  const aliasedProjectTable = aliasedTable(projectsTable, "projects");
 
-    const aliasedProjectTable = aliasedTable(projectsTable, "projects");
+  const result = await db
+    .select()
+    .from(aliasedProjectTable)
+    .where(
+      sql`${aliasedProjectTable.tech_stack} && ${sql`array[${prefrences.techstack.map((tech) => sql`${tech}`)}]`}`,
+    );
 
-    const result = await db.select().from(aliasedProjectTable).where(
+  return result;
+}
 
-            sql`${aliasedProjectTable.tech_stack} && ${sql`array[${prefrences.techstack.map((tech) => sql`${tech}`)}]`}`    );
+export async function getBookmarks(profile_id: string) {
+  const result = await db
+    .select()
+    .from(profileBookmarks)
+    .where(eq(profileBookmarks.profile_id, profile_id));
+
+  return result;
+}
+
+export async function addToBookmarks(
+  inserted_profile_id: string,
+  inserted_project_id: string,
+) {
+  try {
+    const result = await db.insert(profileBookmarks).values({
+      profile_id: inserted_profile_id,
+      project_id: inserted_project_id,
+    });
 
     return result;
-    
-
+  } catch (error) {
+    console.error("Error adding to bookmarks:", error);
+    throw new Error("Unable to add to bookmarks");
+  }
 }
 
-export async function getBookmarks(profile_id : string){
+export async function deleteFromBookmark(
+  inserted_profile_id: string,
+  deleted_project_id: string,
+) {
+  try {
+    const result = await db
+      .delete(profileBookmarks)
+      .where(
+        and(
+          eq(profileBookmarks.profile_id, inserted_profile_id),
+          eq(profileBookmarks.project_id, deleted_project_id),
+        ),
+      );
 
-
-    const result = await db.select().from(profileBookmarks).where(
-        eq(profileBookmarks.profile_id,profile_id)
-    )
-
-    return result
+    return result;
+  } catch (erro) {
+    console.error("error deleting bookmarks ", error);
+    throw new Error("unabel to delete bookmarks ");
+  }
 }
-
-
-export async function addToBookmarks(inserted_profile_id : string , inserted_project_id : string ) {
-
-    try{
-
-        const result = await db.insert(profileBookmarks).values({
-            profile_id :inserted_profile_id, 
-            project_id : inserted_project_id
-        })
-
-        return result; 
-
-    }catch(error){
-        console.error('Error adding to bookmarks:', error);
-        throw new Error('Unable to add to bookmarks');
-    }
-
-    
-}
-
-
-export async function deleteFromBookmark(inserted_profile_id : string , deleted_project_id : string ){
-    
-    try{
-        
-        const result = await db.delete(profileBookmarks)
-        .where(
-            and(
-                eq(profileBookmarks.profile_id,inserted_profile_id),
-                eq(profileBookmarks.project_id,deleted_project_id)
-            )
-        );
-
-        return result;
-
-    }catch(erro){
-
-        console.error("error deleting bookmarks ", error);
-        throw new Error("unabel to delete bookmarks ")
-
-
-    }
-
-
-}
-
-
