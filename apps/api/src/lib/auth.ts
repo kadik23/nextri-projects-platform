@@ -27,12 +27,12 @@ declare module "lucia" {
 }
 
 export const github = new GitHub(
-  process.env.GITHUB_CLIENT_ID!,
-  process.env.GITHUB_CLIENT_SECRET!
+  process.env.GITHUB_CLIENT_ID as string,
+  process.env.GITHUB_CLIENT_SECRET as string
 );
 
 export const googleAuth = new Google(
-  process.env.GOOGLE_CLIENT_ID!,
-  process.env.GOOGLE_CLIENT_SECRET!,
-  `${process.env.HOST_NAME}/api/login/google/callback`
+  process.env.GOOGLE_CLIENT_ID as string,
+  process.env.GOOGLE_CLIENT_SECRET as string,
+  "http://localhost:3001/auth/google/callback"
 );

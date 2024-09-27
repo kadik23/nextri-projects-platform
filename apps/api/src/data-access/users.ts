@@ -1,8 +1,8 @@
-import { db, eq, userTable, TUser } from "@repo/db";
+import { db, eq, userTable, type TUser } from "@repo/db";
 import { getRandomId } from "../lib/utils";
 
-export const insterUser = async ({ email }: { email: string }) => {
-  const newUser = await db.insert(userTable).values({
+export const insertUser = async ({ email }: { email: string }) => {
+  const [newUser] = await db.insert(userTable).values({
     email,
     id: getRandomId(),
   });
@@ -29,6 +29,13 @@ export async function updateUser(userId: string, updatedUser: Partial<TUser>) {
 export async function getUserByEmail(email: string) {
   const user = await db.query.userTable.findFirst({
     where: eq(userTable.email, email),
+  });
+
+  return user;
+}
+export async function getUserById(id: string) {
+  const user = await db.query.userTable.findFirst({
+    where: eq(userTable.id, id),
   });
 
   return user;

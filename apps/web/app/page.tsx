@@ -1,17 +1,16 @@
-"use client"; 
+"use client";
 
-import { useRouter } from 'next/navigation';
-import { useEffect } from 'react';
+import { useRouter } from "next/navigation";
+import { useEffect } from "react";
 
 const HomePage: React.FC = (): null => {
-  const router = useRouter();
+	const router = useRouter();
 
-  useEffect(() => {
-   
-    router.push('/auth');
-  }, [router]);
+	useEffect(() => {
+		router.push("/auth");
+	}, [router]);
 
-  return null;
-}
+	return null;
+};
 
 export default HomePage;

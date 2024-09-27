@@ -1,2 +1,11 @@
-make drizzle connection
-understand how lucia works
+create a route for google where you redirect the users to the google page
+
+create the redirect page where you redirect the user to the github page
+
+for google create call backs urls where you create user and create a vlide session then redirect the user to the dashboard
+
+for github
+
+create logout route
+
+create the request protection middleware
