@@ -1,4 +1,3 @@
-/* eslint-disable no-use-before-define */
 "use client";
 
 import { Command as CommandPrimitive, useCommandState } from "cmdk";
@@ -452,13 +451,13 @@ export const MultiSelect = React.forwardRef<
             inputRef?.current?.focus();
           }}
         >
-          <div className="relative flex flex-wrap gap-1">
+          <div className="relative px-2 flex items-center flex-wrap gap-1">
             {selected.map((option) => {
               return (
                 <Badge
                   key={option.value}
                   className={cn(
-                    "  data-[disabled]:bg-white data-[disabled]:text-gray-100 data-[disabled]:hover:bg-white",
+                    " h-8 w-fit data-[disabled]:bg-white data-[disabled]:text-gray-100 data-[disabled]:hover:bg-white",
 
                     badgeClassName
                   )}
@@ -469,7 +468,7 @@ export const MultiSelect = React.forwardRef<
                   {option.label}
                   <button
                     className={cn(
-                      "ml-1 rounded-full outline-none ring-offset-background focus:ring-2 focus:ring-ring focus:ring-offset-2",
+                      "ml-1  rounded-full outline-none ring-offset-background focus:ring-2 focus:ring-ring focus:ring-offset-2",
                       (disabled || option.fixed) && "hidden"
                     )}
                     onKeyDown={(e) => {
@@ -510,7 +509,8 @@ export const MultiSelect = React.forwardRef<
                 inputProps?.onFocus?.(event);
               }}
               placeholder={
-                hidePlaceholderWhenSelected && selected.length !== 0
+                (hidePlaceholderWhenSelected && selected.length !== 0) ||
+                selected.length > 0
                   ? ""
                   : placeholder
               }
