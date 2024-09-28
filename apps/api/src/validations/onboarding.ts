@@ -17,7 +17,7 @@ export const OpenSourcePathEnum = z.enum(["rebuild_projects", "solve_issues"]);
 
 export const onboardingSchema = z.object({
   role: z.string(),
-  skills: z.string().array(),
+  skills: z.string(),
   project_types: z.array(ProjectCategoryPreferenceEnum),
   project_foucus: z.string().array(),
   skill_level: z.string(),

@@ -1,5 +1,5 @@
 export const getMagicLinkEmailTemplate = ({ token }: { token: string }) => {
-  return `
+	return `
         <!DOCTYPE html>
 <html lang="en">
 

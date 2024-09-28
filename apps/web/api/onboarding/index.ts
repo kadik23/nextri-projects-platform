@@ -1,43 +1,52 @@
 import type { TOnboardingSchema } from "@/components/modals/onboading-modal";
 import { fetcher } from "@/lib/utils";
 
-export const onbordUser = async (data: TOnboardingSchema) => {
-	try {
-		const reponse = await fetcher("http://localhost:3001/onboarding", {
-			method: "POST",
-			headers: {
-				"Content-Type": "application/json",
-			},
-			credentials: "include",
-			body: JSON.stringify({ data }),
-		});
-	} catch (err) {
-		console.error("Error on onboarding the user :", err);
-	}
+const API_BASE_URL = "http://localhost:3001";
+
+interface OnboardingResponse {
+  isOnboarded: boolean;
+}
+
+export const onboardUser = async (data: TOnboardingSchema): Promise<void> => {
+  try {
+    await fetcher(`${API_BASE_URL}/onboarding`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      credentials: "include",
+
+      body: JSON.stringify(data),
+    });
+  } catch (err) {
+    console.error("Error onboarding the user:", err);
+    throw new Error("Failed to onboard user");
+  }
 };
 
-export const isUserOnboarded = async ({
-	authSession,
-}: {
-	authSession: string | null;
-}) => {
-	if (!authSession) {
-		return undefined;
-	}
-	try {
-		const reponse = await fetcher("http://localhost:3001/onboarding", {
-			method: "GET",
-			headers: {
-				"Content-Type": "application/json",
+export const isUserOnboarded = async (
+  authSession: string | null
+): Promise<boolean | undefined> => {
+  if (!authSession) {
+    return undefined;
+  }
 
-				Cookie: `auth_session=${authSession};`, // psq ma7abch yab3athha wa7d m next js server
-			},
-			credentials: "include",
-		});
+  try {
+    const response = await fetcher<OnboardingResponse>(
+      `${API_BASE_URL}/onboarding`,
+      {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Cookie: `auth_session=${authSession};`,
+        },
+        credentials: "include",
+      }
+    );
 
-		//@ts-ignore
-		return reponse?.isOnborded;
-	} catch (err) {
-		console.error("Error on onboarding the user :", err);
-	}
+    return response?.isOnboarded;
+  } catch (err) {
+    console.error("Error checking user onboarding status:", err);
+    throw new Error("Failed to check user onboarding status");
+  }
 };

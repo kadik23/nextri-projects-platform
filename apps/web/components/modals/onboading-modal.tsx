@@ -1,7 +1,5 @@
 "use client";
 
-import { motion } from "framer-motion";
-import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -25,25 +23,29 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { motion } from "framer-motion";
+import { useEffect, useState } from "react";
 
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
-import { z } from "zod";
-import { MultiSelect } from "../multi-select";
+import { onboardUser } from "@/api/onboarding";
+import { Icons } from "@/components/icons";
+import { MultiSelect } from "@/components/multi-select";
+import { Badge } from "@/components/ui/badge";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   PROJECT_DURATIONS,
   PROJECT_FOCUS,
   PROJECT_TYPES,
-  ROLS,
+  ROLES,
   SKILLS_LEVELS,
   TECH_STACKS,
   WORK_TYPES,
-} from "@/config/data";
-import { Badge } from "../ui/badge";
-import { cn } from "@/lib/utils";
-import { onbordUser } from "@/api/onboarding";
+} from "@/constants/data";
+
+import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
+import { useForm } from "react-hook-form";
 import toast from "react-hot-toast";
+import { z } from "zod";
 
 export const WorkPaceEnum = z.enum([
   "short_term",
@@ -62,7 +64,7 @@ export const OpenSourcePathEnum = z.enum(["rebuild_projects", "solve_issues"]);
 
 export const formSchema = z.object({
   role: z.string(),
-  skills: z.string().array(),
+  skills: z.string(),
   project_types: z.array(ProjectCategoryPreferenceEnum),
   project_foucus: z.string().array(),
   skill_level: z.string(),
@@ -70,16 +72,22 @@ export const formSchema = z.object({
   work_types: z.array(OpenSourcePathEnum),
 });
 
+interface OptionWithRole {
+  label: string;
+  value: string;
+  role: string;
+}
+
 export type TOnboardingSchema = z.infer<typeof formSchema>;
 
 export function OnboardingDialog({ initialValue }: { initialValue: boolean }) {
   const [formStep, setFormStep] = useState<number>(0);
   const [open, setOpen] = useState<boolean>(initialValue);
-
   const [isEnabled, setIsEnabled] = useState<boolean>(true);
+  const [skills, setSkills] = useState<OptionWithRole[]>(TECH_STACKS);
 
   const mutation = useMutation({
-    mutationFn: (data: TOnboardingSchema) => onbordUser(data),
+    mutationFn: (data: TOnboardingSchema) => onboardUser(data),
   });
 
   const form = useForm<TOnboardingSchema>({
@@ -102,7 +110,18 @@ export function OnboardingDialog({ initialValue }: { initialValue: boolean }) {
     return () => {
       window.removeEventListener("keydown", handleKeyDown);
     };
-  }, [formStep, isEnabled]);
+  }, [formStep, isEnabled, form.handleSubmit]);
+
+  useEffect(() => {
+    const SELECTED_ROLE = form.watch("role");
+    if (SELECTED_ROLE) {
+      const FILTERED_TECH_STACK = TECH_STACKS.filter(
+        (item) => item.role === SELECTED_ROLE
+      );
+
+      setSkills(FILTERED_TECH_STACK);
+    }
+  }, [form.watch("role")]);
 
   useEffect(() => {
     const isNextButtonDisabled = (): boolean => {
@@ -123,7 +142,7 @@ export function OnboardingDialog({ initialValue }: { initialValue: boolean }) {
     };
 
     setIsEnabled(isNextButtonDisabled());
-  }, [formStep, form.formState]);
+  }, [formStep, form.watch, form.formState]);
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     try {
@@ -141,20 +160,19 @@ export function OnboardingDialog({ initialValue }: { initialValue: boolean }) {
       });
     } catch (err) {
       console.log(err);
-      toast.error("This didn't work.");
     }
   }
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogContent className="w-[500px] min-h-[550px] h-fit  pt-4  ">
+    <Dialog open={open}>
+      <DialogContent className="w-[500px] min-h-[550px] h-fit pt-4   rounded-t-2xl sm:rounded-md ">
         <DialogHeader className="p-4">
           <DialogTitle>We've got some onboarding questions</DialogTitle>
         </DialogHeader>
         <Form {...form}>
           <form
             onSubmit={form.handleSubmit(onSubmit)}
-            className="relative  w-full overflow-x-hidden flex flex-col justify-between "
+            className="relative w-full overflow-x-hidden flex flex-col justify-between "
             id="onboarding-form"
           >
             {/* Step 1 */}
@@ -163,70 +181,102 @@ export function OnboardingDialog({ initialValue }: { initialValue: boolean }) {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
-                className="h-fit flex flex-col gap-y-4"
+                className="h-fit flex flex-col gap-y-4 px-8 sm:px-0"
               >
-                <div className="w-full h-[60px] flex flex-col gap-y-1 items-start justify-center px-4 ">
+                <div className="w-full h-[60px] flex flex-col gap-y-1 items-start justify-center  px-4 ">
                   <p className="text-blue-500 text-sm">Quastion 1 of 4</p>
                   <h1 className="text-xl font-bold">
                     Role and Technology Stack Selection
                   </h1>
                 </div>
-                <div className="w-full min-h-[300px] h-fit px-4 flex flex-col gap-y-4">
-                  <FormField
-                    control={form.control}
-                    name="role"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>what is your role 👨‍💻 ? </FormLabel>
-                        <Select
-                          onValueChange={field.onChange}
-                          defaultValue={field.value}
-                        >
-                          <FormControl>
-                            <SelectTrigger>
-                              <SelectValue placeholder="Select a verified email to display" />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            {ROLS.map((item) => {
-                              return (
-                                <SelectItem key={item.value} value={item.value}>
-                                  {item.label}
-                                </SelectItem>
-                              );
-                            })}
-                          </SelectContent>
-                        </Select>
-
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="skills"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>
-                          tell us more about your tech stack{" "}
-                        </FormLabel>
-
-                        <FormControl>
-                          <MultiSelect
-                            options={TECH_STACKS}
+                <ScrollArea className="h-[300px] ">
+                  <div className="w-full min-h-[300px] h-fit px-4 flex flex-col gap-y-4">
+                    <FormField
+                      control={form.control}
+                      name="role"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel htmlFor="role">
+                            What's your role 👨‍💻?
+                          </FormLabel>
+                          <Select
                             onValueChange={field.onChange}
                             defaultValue={field.value}
-                            placeholder="Select a techstack"
-                            animation={0}
-                            maxCount={4}
-                          />
-                        </FormControl>
+                          >
+                            <FormControl>
+                              <SelectTrigger>
+                                <SelectValue placeholder="Choose your role" />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              {ROLES.map((item) => {
+                                return (
+                                  <SelectItem
+                                    disabled={item?.disable}
+                                    key={item.value}
+                                    value={item.value}
+                                  >
+                                    {item.label}
 
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
+                                    {item?.disable && (
+                                      <Badge
+                                        variant={"secondary"}
+                                        className="ml-4"
+                                      >
+                                        coming soon
+                                      </Badge>
+                                    )}
+                                  </SelectItem>
+                                );
+                              })}
+                            </SelectContent>
+                          </Select>
+
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="skills"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel htmlFor="skills">
+                            What type of developer are you?
+                          </FormLabel>
+
+                          <FormControl>
+                            <Select
+                              onValueChange={field.onChange}
+                              defaultValue={field.value}
+                            >
+                              <FormControl>
+                                <SelectTrigger>
+                                  <SelectValue placeholder="Choose relevant technologies" />
+                                </SelectTrigger>
+                              </FormControl>
+
+                              <SelectContent>
+                                {skills.map((item) => {
+                                  return (
+                                    <SelectItem
+                                      key={item.value}
+                                      value={item.value}
+                                    >
+                                      {item.label}
+                                    </SelectItem>
+                                  );
+                                })}
+                              </SelectContent>
+                            </Select>
+                          </FormControl>
+
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                </ScrollArea>
               </motion.div>
             )}
 
@@ -244,71 +294,77 @@ export function OnboardingDialog({ initialValue }: { initialValue: boolean }) {
                     Skill Level and Work Pace Selection
                   </h1>
                 </div>
-                <div className="w-full min-h-[300px] h-fit px-4 flex flex-col gap-y-4">
-                  <FormField
-                    control={form.control}
-                    name="skill_level"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>select your level </FormLabel>
-                        <Select
-                          onValueChange={field.onChange}
-                          defaultValue={field.value}
-                        >
-                          <FormControl>
-                            <SelectTrigger>
-                              <SelectValue placeholder="Select a verified email to display" />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            {SKILLS_LEVELS.map((item) => {
-                              return (
-                                <SelectItem key={item.value} value={item.value}>
-                                  {item.label}
-                                </SelectItem>
-                              );
-                            })}
-                          </SelectContent>
-                        </Select>
+                <ScrollArea className="h-[300px] ">
+                  <div className="w-full min-h-[300px] h-fit px-4 flex flex-col gap-y-4">
+                    <FormField
+                      control={form.control}
+                      name="skill_level"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel> How skilled are you?</FormLabel>
+                          <Select
+                            onValueChange={field.onChange}
+                            defaultValue={field.value}
+                          >
+                            <FormControl>
+                              <SelectTrigger>
+                                <SelectValue placeholder="Choose your expertise level" />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              {SKILLS_LEVELS.map((item) => {
+                                return (
+                                  <SelectItem
+                                    key={item.value}
+                                    value={item.value}
+                                  >
+                                    {item.label}
+                                  </SelectItem>
+                                );
+                              })}
+                            </SelectContent>
+                          </Select>
 
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
 
-                  <FormField
-                    control={form.control}
-                    name="work_pace"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>
-                          how much time will you dedicate to us{" "}
-                        </FormLabel>
-                        <Select
-                          onValueChange={field.onChange}
-                          defaultValue={field.value}
-                        >
-                          <FormControl>
-                            <SelectTrigger>
-                              <SelectValue placeholder="Select a valid option to display" />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            {PROJECT_DURATIONS.map((item) => {
-                              return (
-                                <SelectItem key={item.value} value={item.value}>
-                                  {item.label}
-                                </SelectItem>
-                              );
-                            })}
-                          </SelectContent>
-                        </Select>
+                    <FormField
+                      control={form.control}
+                      name="work_pace"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>How long will the project last?</FormLabel>
+                          <Select
+                            onValueChange={field.onChange}
+                            defaultValue={field.value}
+                          >
+                            <FormControl>
+                              <SelectTrigger>
+                                <SelectValue placeholder="Choose the project duration" />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              {PROJECT_DURATIONS.map((item) => {
+                                return (
+                                  <SelectItem
+                                    key={item.value}
+                                    value={item.value}
+                                  >
+                                    {item.label}
+                                  </SelectItem>
+                                );
+                              })}
+                            </SelectContent>
+                          </Select>
 
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                </ScrollArea>
               </motion.div>
             )}
 
@@ -326,78 +382,95 @@ export function OnboardingDialog({ initialValue }: { initialValue: boolean }) {
                     Project Category Preferences
                   </h1>
                 </div>
-                <div className="w-full min-h-[300px] h-fit px-4 flex flex-col gap-y-4">
-                  <FormField
-                    control={form.control}
-                    name="project_types"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>what type of project you want ? </FormLabel>
+                <ScrollArea className="h-[300px] ">
+                  <div className="w-full min-h-[300px] h-fit px-4 flex flex-col gap-y-4">
+                    <FormField
+                      control={form.control}
+                      name="project_types"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel htmlFor="project_types">
+                            What type of project are you working on?
+                          </FormLabel>
 
-                        <FormControl>
-                          <MultiSelect
-                            options={PROJECT_TYPES}
-                            onValueChange={field.onChange}
-                            defaultValue={field.value}
-                            placeholder="Select frameworks"
-                            animation={0}
-                            maxCount={4}
-                          />
-                        </FormControl>
+                          <FormControl>
+                            <MultiSelect
+                              options={PROJECT_TYPES}
+                              value={PROJECT_TYPES.filter((item) =>
+                                //@ts-ignore
+                                field.value?.includes(item.value)
+                              )}
+                              onChange={(item) =>
+                                field.onChange(item.map((item) => item.value))
+                              }
+                              placeholder="Choose the type of project "
+                            />
+                          </FormControl>
 
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
 
-                  <FormField
-                    control={form.control}
-                    name="project_foucus"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>
-                          what kind of project you want to focus on ?{" "}
-                        </FormLabel>
+                    <FormField
+                      control={form.control}
+                      name="project_foucus"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel htmlFor="project_foucus">
+                            What's the project focused on?
+                          </FormLabel>
 
-                        <FormControl>
-                          <MultiSelect
-                            options={PROJECT_FOCUS}
-                            onValueChange={field.onChange}
-                            defaultValue={field.value}
-                            placeholder="Select your type"
-                            animation={0}
-                            maxCount={4}
-                          />
-                        </FormControl>
+                          <FormControl>
+                            <MultiSelect
+                              options={PROJECT_FOCUS}
+                              value={PROJECT_FOCUS.filter((item) =>
+                                //@ts-ignore
+                                field.value?.includes(item.value)
+                              )}
+                              onChange={(item) => {
+                                console.log(item.map((item) => item.value));
+                                field.onChange(item.map((item) => item.value));
+                              }}
+                              placeholder="Choose a focus area"
+                            />
+                          </FormControl>
 
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
 
-                  <FormField
-                    control={form.control}
-                    name="work_types"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>what kind of work you want ?</FormLabel>
+                    <FormField
+                      control={form.control}
+                      name="work_types"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel htmlFor="work_types">
+                            How would you like to contribute?
+                          </FormLabel>
 
-                        <FormControl>
-                          <MultiSelect
-                            options={WORK_TYPES}
-                            onValueChange={field.onChange}
-                            defaultValue={field.value}
-                            placeholder="select what type of work you want"
-                            animation={0}
-                            maxCount={4}
-                          />
-                        </FormControl>
+                          <FormControl>
+                            <MultiSelect
+                              options={WORK_TYPES}
+                              value={WORK_TYPES.filter((item) =>
+                                //@ts-ignore
+                                field.value?.includes(item.value)
+                              )}
+                              onChange={(item) => {
+                                console.log(item.map((item) => item.value));
+                                field.onChange(item.map((item) => item.value));
+                              }}
+                              placeholder="Choose your work style"
+                            />
+                          </FormControl>
 
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                </ScrollArea>
               </motion.div>
             )}
             {/* Step 4 */}
@@ -412,104 +485,45 @@ export function OnboardingDialog({ initialValue }: { initialValue: boolean }) {
                   <p className="text-blue-500 text-sm">Quastion 4 of 4</p>
                   <h1 className="text-2xl font-bold">Review and Submission</h1>
                 </div>
-                <div className="w-full min-h-[400px] h-fit px-4 flex flex-col gap-y-4">
-                  <div className="w-full h-[60px] flex flex-col gap-y-2">
-                    <label>your selected role </label>
-                    <Badge
-                      className={cn(
-                        "bg-transparent w-fit text-black border-black hover:bg-transparent p-1"
-                      )}
-                    >
-                      {form.watch("role") ?? ""}
-                    </Badge>
+                <ScrollArea className="h-[300px] p-4">
+                  <div className="space-y-4 ">
+                    <ReviewSection
+                      label="Selected Role"
+                      value={form.watch("role")}
+                      options={ROLES}
+                    />
+                    <ReviewSection
+                      label="Selected Skills"
+                      value={form.watch("skills")}
+                      options={TECH_STACKS}
+                    />
+                    <ReviewSection
+                      label="Skill Level"
+                      value={form.watch("skill_level")}
+                      options={SKILLS_LEVELS}
+                    />
+                    <ReviewSection
+                      label="Work Pace"
+                      value={form.watch("work_pace")}
+                      options={PROJECT_DURATIONS}
+                    />
+                    <ReviewSection
+                      label="Project Types"
+                      value={form.watch("project_types")}
+                      options={PROJECT_TYPES}
+                    />
+                    <ReviewSection
+                      label="Project Focus"
+                      value={form.watch("project_foucus")}
+                      options={PROJECT_FOCUS}
+                    />
+                    <ReviewSection
+                      label="Work Types"
+                      value={form.watch("work_types")}
+                      options={WORK_TYPES}
+                    />
                   </div>
-                  <div className="w-full h-[60px] flex flex-col gap-y-2">
-                    <label>your selected skill stack </label>
-                    <div className="flex flex-wrap gap-x-4 ">
-                      {form.watch("skills")?.map((item) => {
-                        const option = TECH_STACKS.find(
-                          (o) => o.value === item
-                        );
-
-                        return (
-                          <Badge
-                            key={item}
-                            className={cn(
-                              "bg-transparent w-fit text-black border-black hover:bg-transparent p-1"
-                            )}
-                          >
-                            {option?.label}
-                          </Badge>
-                        );
-                      })}
-                    </div>
-                  </div>
-
-                  <div className="w-full h-[60px] flex flex-col gap-y-2">
-                    <label>your selected level </label>
-                    <Badge
-                      className={cn(
-                        "bg-transparent w-fit text-black border-black hover:bg-transparent p-1"
-                      )}
-                    >
-                      {form.watch("skill_level") ?? ""}
-                    </Badge>
-                  </div>
-
-                  <div className="w-full h-[60px] flex flex-col gap-y-2">
-                    <label>your selected role </label>
-                    <Badge
-                      className={cn(
-                        "bg-transparent w-fit text-black border-black hover:bg-transparent p-1"
-                      )}
-                    >
-                      {form.watch("work_pace") ?? ""}
-                    </Badge>
-                  </div>
-
-                  <div className="w-full h-[60px] flex flex-col gap-y-2">
-                    <label>your selected project type </label>
-                    <div className="flex flex-wrap gap-x-4 ">
-                      {form.watch("project_types")?.map((item) => {
-                        const option = PROJECT_TYPES.find(
-                          (o) => o.value === item
-                        );
-
-                        return (
-                          <Badge
-                            key={item}
-                            className={cn(
-                              "bg-transparent w-fit text-black border-black hover:bg-transparent p-1"
-                            )}
-                          >
-                            {option?.label}
-                          </Badge>
-                        );
-                      })}
-                    </div>
-                  </div>
-                  <div className="w-full h-[60px] flex flex-col gap-y-2">
-                    <label>your selected Focus Selection </label>
-                    <div className="flex flex-wrap gap-x-4 ">
-                      {form.watch("project_foucus")?.map((item) => {
-                        const option = PROJECT_FOCUS.find(
-                          (o) => o.value === item
-                        );
-
-                        return (
-                          <Badge
-                            key={item}
-                            className={cn(
-                              "bg-transparent w-fit text-black border-black hover:bg-transparent p-1"
-                            )}
-                          >
-                            {option?.label}
-                          </Badge>
-                        );
-                      })}
-                    </div>
-                  </div>
-                </div>
+                </ScrollArea>
               </motion.div>
             )}
 
@@ -546,28 +560,7 @@ export function OnboardingDialog({ initialValue }: { initialValue: boolean }) {
                   form="onboarding-form"
                   className="btn-primary"
                 >
-                  {mutation.isPending && (
-                    <svg
-                      className={"mr-2 h-5 w-5 animate-spin text-inverted"}
-                      xmlns="http://www.w3.org/2000/svg"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                    >
-                      <circle
-                        className="opacity-25"
-                        cx="12"
-                        cy="12"
-                        r="10"
-                        stroke="currentColor"
-                        strokeWidth="4"
-                      />
-                      <path
-                        className="opacity-75"
-                        fill="currentColor"
-                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                      />
-                    </svg>
-                  )}
+                  {mutation.isPending && <Icons.spinner />}
                   submit
                 </Button>
               )}
@@ -578,3 +571,35 @@ export function OnboardingDialog({ initialValue }: { initialValue: boolean }) {
     </Dialog>
   );
 }
+
+interface ReviewSectionProps {
+  label: string;
+  value: string | string[];
+  options: Array<{ value: string; label: string }>;
+}
+
+const ReviewSection: React.FC<ReviewSectionProps> = ({
+  label,
+  value,
+  options,
+}) => (
+  <div className="space-y-2">
+    <p className="font-medium">{label}</p>
+    <div className="flex flex-wrap gap-2">
+      {Array.isArray(value) ? (
+        value.map((item) => {
+          const option = options.find((o) => o.value === item);
+          return (
+            <Badge key={item} variant="outline" className="p-2">
+              {option?.label || item}
+            </Badge>
+          );
+        })
+      ) : (
+        <Badge variant="outline" className="p-2">
+          {options.find((o) => o.value === value)?.label || value}
+        </Badge>
+      )}
+    </div>
+  </div>
+);

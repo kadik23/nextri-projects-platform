@@ -14,8 +14,6 @@ export const metadata: Metadata = {
 	description: "something we are trying to build it ",
 };
 
-// add selection and providers and modals
-
 export default function RootLayout({
 	children,
 }: {

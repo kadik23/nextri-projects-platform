@@ -2,4 +2,4 @@ export * from "./src/schema";
 export * from "./src/index";
 export * from "./src/lucia-adapter";
 export * from "./src/drizzle-functions";
-export * from "drizzle-orm"
+export * from "drizzle-orm";
