@@ -22,12 +22,13 @@
 				"NEXT_PUBLIC_SERVER_URL"
 			]
 		},
-		"lint": {
-			"dependsOn": ["^lint"]
-		},
 		"dev": {
 			"cache": false,
 			"persistent": true
+		},
+		"//#format-and-lint": {},
+		"//#format-and-lint:fix": {
+			"cache": false
 		}
 	}
 }
