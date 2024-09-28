@@ -3,3 +3,8 @@
 [ -n "$CI" ] && exit 0
 . "$(dirname "$0")/_/husky.sh"
 exec < /dev/tty && npm run cz -- --hook || true
+
+
+# salam ana srali mochkil m3a hada file l9it hada al7al f issue hadi -> https://github.com/commitizen/cz-cli/issues/627
+
+

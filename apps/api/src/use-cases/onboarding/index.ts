@@ -1,17 +1,17 @@
 import {
-  getUserOnboarding,
-  insertUserOnboarding,
+	getUserOnboarding,
+	insertUserOnboarding,
 } from "../../data-access/onboarding";
-import { TOnboardingSchema } from "../../validations/onboarding";
+import type { TOnboardingSchema } from "../../validations/onboarding";
 
 export async function registerOnboarding(
-  data: TOnboardingSchema & { userId: string }
+	data: TOnboardingSchema & { userId: string },
 ) {
-  return await insertUserOnboarding(data);
+	return await insertUserOnboarding(data);
 }
 
 export async function getMyOnboardingData(user_id: string) {
-  return await getUserOnboarding(user_id);
+	return await getUserOnboarding(user_id);
 }
 
 // export async function updateOnboardingData(data: {

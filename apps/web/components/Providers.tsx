@@ -5,19 +5,19 @@ import { Next13ProgressBar } from "next13-progressbar";
 import { type PropsWithChildren, useState } from "react";
 
 const Providers = ({ children }: PropsWithChildren) => {
-  const [queryClient] = useState(() => new QueryClient());
+	const [queryClient] = useState(() => new QueryClient());
 
-  return (
-    <>
-      <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
-      <Next13ProgressBar
-        height="5px"
-        color="#003cff0"
-        options={{ showSpinner: false }}
-        showOnShallow
-      />
-    </>
-  );
+	return (
+		<>
+			<QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+			<Next13ProgressBar
+				height="5px"
+				color="#003cff0"
+				options={{ showSpinner: false }}
+				showOnShallow
+			/>
+		</>
+	);
 };
 
 export default Providers;

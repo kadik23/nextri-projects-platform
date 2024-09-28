@@ -6,12 +6,9 @@ import Link from "next/link";
 import type { FC } from "react";
 
 const page: FC = async () => {
-	const onboardedOrNot = await isUserOnboarded({
-		authSession: cookies().get("auth_session")?.value ?? null,
-	});
-
-	console.log("this is the cookie", cookies().get("auth_session")?.value);
-	console.log("this is to see if the value is onboarded ", onboardedOrNot);
+	const onboardedOrNot = await isUserOnboarded(
+		cookies().get("auth_session")?.value ?? null,
+	);
 
 	return (
 		<>
