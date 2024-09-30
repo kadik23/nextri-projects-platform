@@ -116,7 +116,7 @@ export function OnboardingDialog({ initialValue }: { initialValue: boolean }) {
     return () => {
       window.removeEventListener("keydown", handleKeyDown);
     };
-  }, [formStep, setIsNextButtonDisabled, form.handleSubmit]);
+  }, [formStep, isNextButtonDisabled, form.handleSubmit]);
 
   useEffect(() => {
     const SELECTED_ROLE = form.watch("role");
@@ -127,10 +127,10 @@ export function OnboardingDialog({ initialValue }: { initialValue: boolean }) {
 
       setSkills(FILTERED_TECH_STACK);
     }
-  }, [form.watch("role")]);
+  }, [form.watch]);
 
   useEffect(() => {
-    const isNextButtonDisabled = (): boolean => {
+    const getNextStepSate = (): boolean => {
       if (formStep === 0) {
         return !form.watch("role") || !form.watch("skills");
       }
@@ -147,8 +147,11 @@ export function OnboardingDialog({ initialValue }: { initialValue: boolean }) {
       return false;
     };
 
-    setIsNextButtonDisabled(isNextButtonDisabled());
-  }, [formStep, form.watch, form.formState]);
+    console.log("the function is wokrking as intended", getNextStepSate());
+
+    setIsNextButtonDisabled(getNextStepSate());
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [formStep, form.formState]);
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     try {
@@ -165,7 +168,8 @@ export function OnboardingDialog({ initialValue }: { initialValue: boolean }) {
         },
       });
     } catch (err) {
-      console.log(err);
+      console.error(err);
+      toast.error("something went wrong");
     }
   }
 
@@ -207,7 +211,6 @@ export function OnboardingDialog({ initialValue }: { initialValue: boolean }) {
                           </FormLabel>
                           <Select
                             onValueChange={(item) => {
-                              setIsNextButtonDisabled(true);
                               field.onChange(item);
 
                               form.resetField("skills", {
