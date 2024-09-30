@@ -1,64 +1,71 @@
 import { Hono } from "hono";
+import { ZodError } from "zod";
 import { getUserId } from "../data-access/sessions";
 import {
-  getMyOnboardingData,
-  registerOnboarding,
+	getMyOnboardingData,
+	registerOnboarding,
 } from "../use-cases/onboarding";
 import { onboardingSchema } from "../validations/onboarding";
 
 const onboarding = new Hono();
 
 onboarding.post("/", async (c) => {
-  const body = await c.req.json();
+	const body = await c.req.json();
 
-  const data = onboardingSchema.parse(body);
+	const user_id = await getUserId(c);
 
-  const user_id = await getUserId(c);
+	if (!user_id) {
+		return c.json({ error: "Credentials are not valid" }, 401);
+	}
+	try {
+		const data = onboardingSchema.parse(body);
+		const result = await registerOnboarding({
+			userId: user_id,
+			project_foucus: data.project_foucus,
+			project_types: data.project_types,
+			role: data.role,
+			skill_level: data.skill_level,
+			skills: data.skills,
+			work_pace: data.work_pace,
+			work_types: data.work_types,
+		});
 
-  if (!user_id) {
-    return c.json({ error: "Credentials are not valid" });
-  }
-  try {
-    const result = await registerOnboarding({
-      userId: user_id,
-      project_foucus: data.project_foucus,
-      project_types: data.project_types,
-      role: data.role,
-      skill_level: data.skill_level,
-      skills: data.skills,
-      work_pace: data.work_pace,
-      work_types: data.work_types,
-    });
+		return c.json({ message: "User Onboarding Successful", result });
+	} catch (err: unknown) {
+		if (err instanceof ZodError) {
+			return c.json({ error: "Validation failed", details: err.errors }, 400);
+		}
 
-    return c.json({ message: "User Onboarding Successful", result });
-  } catch (err) {
-    console.log(err);
-    return c.json(
-      { error: "Failed to complete onboarding", details: err },
-      500
-    );
-  }
+		console.error(err);
+		return c.json(
+			{
+				error: "Failed to complete onboarding",
+				details: (err as Error).message,
+			},
+			500,
+		);
+	}
 });
 
 onboarding.get("/", async (c) => {
-  const user = await getUserId(c);
+	const user = await getUserId(c);
 
-  if (!user) {
-    return c.json({ error: "Credentials are not valid" });
-  }
-  try {
-    const result = await getMyOnboardingData(user);
-    console.log("this is the user if onboarded or not ");
-    console.log(result);
+	if (!user) {
+		return c.json({ error: "Credentials are not valid" }, 401);
+	}
+	try {
+		const result = await getMyOnboardingData(user);
+		console.log("this is the user if onboarded or not ");
+		console.log(result);
 
-    return c.json({ result, isOnboarded: result.length !== 0 });
-  } catch (err) {
-    console.error(err);
-    return c.json(
-      { error: "Failed to complete onboarding", details: err },
-      500
-    );
-  }
+		return c.json({ result, isOnboarded: result.length !== 0 });
+	} catch (err) {
+		console.error(err);
+		return c.json(
+			{ error: "Failed to complete onboarding", details: err },
+			500,
+		);
+	}
 });
 
 // onboarding.put("/:id", async (c) => {

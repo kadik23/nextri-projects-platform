@@ -4,6 +4,7 @@ import { swaggerUI } from "@hono/swagger-ui";
 import { OpenAPIHono } from "@hono/zod-openapi";
 import * as dotenv from "dotenv";
 import { cors } from "hono/cors";
+import { app as appOnboarding } from "../swagger/onboarding";
 import authRoutes from "./auth";
 import marketplaceRoutes from "./marketplace";
 import onboardingRoutes from "./onboarding";
@@ -29,6 +30,8 @@ app.route("/", marketplaceRoutes);
 app.get("/", async (c) => {
 	return c.redirect("http://localhost:3000");
 });
+
+app.route("/onboarding", appOnboarding);
 
 app.doc("/doc", {
 	openapi: "3.0.0",
