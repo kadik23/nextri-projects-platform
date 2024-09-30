@@ -29,6 +29,7 @@ import { useEffect, useState } from "react";
 import { onboardUser } from "@/api/onboarding";
 import { Icons } from "@/components/icons";
 import { MultiSelect } from "@/components/multi-select";
+
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import {
@@ -83,7 +84,8 @@ export type TOnboardingSchema = z.infer<typeof formSchema>;
 export function OnboardingDialog({ initialValue }: { initialValue: boolean }) {
   const [formStep, setFormStep] = useState<number>(0);
   const [open, setOpen] = useState<boolean>(initialValue);
-  const [isEnabled, setIsEnabled] = useState<boolean>(true);
+  const [isNextButtonDisabled, setIsNextButtonDisabled] =
+    useState<boolean>(true);
   const [skills, setSkills] = useState<OptionWithRole[]>(TECH_STACKS);
 
   const mutation = useMutation({
@@ -97,11 +99,15 @@ export function OnboardingDialog({ initialValue }: { initialValue: boolean }) {
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "ArrowRight" && formStep < 3 && !isEnabled) {
+      if (event.key === "ArrowRight" && formStep < 3 && !isNextButtonDisabled) {
         setFormStep((prevStep) => prevStep + 1);
       } else if (event.key === "ArrowLeft" && formStep > 0) {
         setFormStep((prevStep) => prevStep - 1);
-      } else if (event.key === "Enter" && formStep === 3 && !isEnabled) {
+      } else if (
+        event.key === "Enter" &&
+        formStep === 3 &&
+        !isNextButtonDisabled
+      ) {
         form.handleSubmit(onSubmit)();
       }
     };
@@ -110,7 +116,7 @@ export function OnboardingDialog({ initialValue }: { initialValue: boolean }) {
     return () => {
       window.removeEventListener("keydown", handleKeyDown);
     };
-  }, [formStep, isEnabled, form.handleSubmit]);
+  }, [formStep, setIsNextButtonDisabled, form.handleSubmit]);
 
   useEffect(() => {
     const SELECTED_ROLE = form.watch("role");
@@ -126,7 +132,7 @@ export function OnboardingDialog({ initialValue }: { initialValue: boolean }) {
   useEffect(() => {
     const isNextButtonDisabled = (): boolean => {
       if (formStep === 0) {
-        return !form.watch("role") || form.watch("skills")?.length === 0;
+        return !form.watch("role") || !form.watch("skills");
       }
       if (formStep === 1) {
         return !form.watch("skill_level") || !form.watch("work_pace");
@@ -141,7 +147,7 @@ export function OnboardingDialog({ initialValue }: { initialValue: boolean }) {
       return false;
     };
 
-    setIsEnabled(isNextButtonDisabled());
+    setIsNextButtonDisabled(isNextButtonDisabled());
   }, [formStep, form.watch, form.formState]);
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
@@ -200,7 +206,16 @@ export function OnboardingDialog({ initialValue }: { initialValue: boolean }) {
                             What's your role 👨‍💻?
                           </FormLabel>
                           <Select
-                            onValueChange={field.onChange}
+                            onValueChange={(item) => {
+                              setIsNextButtonDisabled(true);
+                              field.onChange(item);
+
+                              form.resetField("skills", {
+                                keepDirty: false,
+                                keepError: false,
+                                keepTouched: false,
+                              });
+                            }}
                             defaultValue={field.value}
                           >
                             <FormControl>
@@ -249,6 +264,7 @@ export function OnboardingDialog({ initialValue }: { initialValue: boolean }) {
                             <Select
                               onValueChange={field.onChange}
                               defaultValue={field.value}
+                              disabled={!form.formState.dirtyFields.role}
                             >
                               <FormControl>
                                 <SelectTrigger>
@@ -395,15 +411,12 @@ export function OnboardingDialog({ initialValue }: { initialValue: boolean }) {
 
                           <FormControl>
                             <MultiSelect
-                              options={PROJECT_TYPES}
-                              value={PROJECT_TYPES.filter((item) =>
-                                //@ts-ignore
-                                field.value?.includes(item.value)
-                              )}
-                              onChange={(item) =>
-                                field.onChange(item.map((item) => item.value))
-                              }
+                              onValueChange={(item) => {
+                                field.onChange(item.map((item) => item));
+                              }}
                               placeholder="Choose the type of project "
+                              defaultValue={field.value}
+                              options={PROJECT_TYPES}
                             />
                           </FormControl>
 
@@ -423,16 +436,12 @@ export function OnboardingDialog({ initialValue }: { initialValue: boolean }) {
 
                           <FormControl>
                             <MultiSelect
-                              options={PROJECT_FOCUS}
-                              value={PROJECT_FOCUS.filter((item) =>
-                                //@ts-ignore
-                                field.value?.includes(item.value)
-                              )}
-                              onChange={(item) => {
-                                console.log(item.map((item) => item.value));
-                                field.onChange(item.map((item) => item.value));
+                              onValueChange={(item) => {
+                                field.onChange(item.map((item) => item));
                               }}
                               placeholder="Choose a focus area"
+                              defaultValue={field.value}
+                              options={PROJECT_FOCUS}
                             />
                           </FormControl>
 
@@ -452,15 +461,11 @@ export function OnboardingDialog({ initialValue }: { initialValue: boolean }) {
 
                           <FormControl>
                             <MultiSelect
-                              options={WORK_TYPES}
-                              value={WORK_TYPES.filter((item) =>
-                                //@ts-ignore
-                                field.value?.includes(item.value)
-                              )}
-                              onChange={(item) => {
-                                console.log(item.map((item) => item.value));
-                                field.onChange(item.map((item) => item.value));
+                              onValueChange={(item) => {
+                                field.onChange(item.map((item) => item));
                               }}
+                              defaultValue={field.value}
+                              options={WORK_TYPES}
                               placeholder="Choose your work style"
                             />
                           </FormControl>
@@ -545,7 +550,7 @@ export function OnboardingDialog({ initialValue }: { initialValue: boolean }) {
                 <Button
                   type="button"
                   variant="default"
-                  disabled={isEnabled}
+                  disabled={isNextButtonDisabled}
                   onClick={() => setFormStep(formStep + 1)}
                 >
                   Next Step
