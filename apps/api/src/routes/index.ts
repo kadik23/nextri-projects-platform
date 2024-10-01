@@ -6,8 +6,8 @@ import * as dotenv from "dotenv";
 import { cors } from "hono/cors";
 import { logger } from "hono/logger";
 import { prettyJSON } from "hono/pretty-json";
-import authRoutes from "./auth";
-import { AuthSwaggerDocs } from "../swagger/auth-docs";
+import authRoutes, { authDocs } from "./auth.route";
+
 import marketplaceRoutes from "./marketplace";
 import onboardingRoutes from "./onboarding";
 
@@ -33,7 +33,7 @@ app.use(
 app.route("/auth", authRoutes);
 app.route("/onboarding", onboardingRoutes);
 app.route("/", marketplaceRoutes);
-app.route("/auth", AuthSwaggerDocs);
+app.route("/auth", authDocs);
 
 app.get("/", (c) => c.redirect(FRONTEND_URL));
 

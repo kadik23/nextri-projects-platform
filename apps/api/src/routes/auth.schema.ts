@@ -1,7 +1,6 @@
 import { OpenAPIHono, createRoute, z } from "@hono/zod-openapi";
 import { emailSchema } from "../../src/validations/auth";
 
-const AuthSwaggerDocs = new OpenAPIHono();
 const providerSchema = z.enum(["google", "github"]);
 const magicLinkRequestSchema = emailSchema;
 const magicLinkResponseSchema = z.object({
@@ -22,7 +21,7 @@ const authorizeRoute = createRoute({
   responses: {
     200: {
       content: {
-        "AuthSwaggerDocslication/json": {
+        "authDocslication/json": {
           schema: z.object({
             url: z.string().url(),
           }),
@@ -32,7 +31,7 @@ const authorizeRoute = createRoute({
     },
     400: {
       content: {
-        "AuthSwaggerDocslication/json": {
+        "authDocslication/json": {
           schema: z.object({
             success: z.literal(false),
             error: z.string(),
@@ -63,7 +62,7 @@ const callbackRoute = createRoute({
     },
     400: {
       content: {
-        "AuthSwaggerDocslication/json": {
+        "authDocslication/json": {
           schema: z.object({
             success: z.literal(false),
             error: z.string(),
@@ -74,7 +73,7 @@ const callbackRoute = createRoute({
     },
     500: {
       content: {
-        "AuthSwaggerDocslication/json": {
+        "authDocslication/json": {
           schema: z.object({
             success: z.literal(false),
             error: z.string(),
@@ -94,7 +93,7 @@ const getMagicLinkRoute = createRoute({
   request: {
     body: {
       content: {
-        "AuthSwaggerDocslication/json": {
+        "authDocslication/json": {
           schema: magicLinkRequestSchema,
         },
       },
@@ -103,7 +102,7 @@ const getMagicLinkRoute = createRoute({
   responses: {
     200: {
       content: {
-        "AuthSwaggerDocslication/json": {
+        "authDocslication/json": {
           schema: magicLinkResponseSchema,
         },
       },
@@ -127,7 +126,7 @@ const magicLinkLoginRoute = createRoute({
     },
     400: {
       content: {
-        "AuthSwaggerDocslication/json": {
+        "authDocslication/json": {
           schema: z.object({
             success: z.literal(false),
             error: z.string(),
@@ -147,7 +146,7 @@ const logoutRoute = createRoute({
   responses: {
     200: {
       content: {
-        "AuthSwaggerDocslication/json": {
+        "authDocslication/json": {
           schema: logoutResponseSchema,
         },
       },
@@ -157,41 +156,10 @@ const logoutRoute = createRoute({
   tags: ["Authentication"],
 });
 
-AuthSwaggerDocs.openapi(authorizeRoute, (c) =>
-  c.json(
-    { url: "http://localhost:3000/url", success: false, error: "400" },
-    200
-  )
-);
-AuthSwaggerDocs.openapi(callbackRoute, (c) =>
-  c.redirect("http://localhost:3000")
-);
-AuthSwaggerDocs.openapi(getMagicLinkRoute, (c) =>
-  c.json({ success: true }, 200)
-);
-AuthSwaggerDocs.openapi(magicLinkLoginRoute, (c) =>
-  c.redirect("http://localhost:3000")
-);
-AuthSwaggerDocs.openapi(logoutRoute, (c) => c.json({ success: true }));
-
-AuthSwaggerDocs.doc("/auth/swagger.json", {
-  openapi: "3.0.0",
-  info: {
-    title: "Authentication API",
-    version: "1.0.0",
-    description:
-      "API for user authentication using OAuth providers and magic links",
-  },
-  servers: [
-    {
-      url: "https://api.example.com",
-      description: "Production server",
-    },
-    {
-      url: "http://localhost:8000",
-      description: "Development server",
-    },
-  ],
-});
-
-export { AuthSwaggerDocs };
+export const doc = {
+  authorizeRoute,
+  callbackRoute,
+  getMagicLinkRoute,
+  magicLinkLoginRoute,
+  logoutRoute,
+};
