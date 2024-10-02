@@ -25,4 +25,16 @@ export const onboardingSchema = z.object({
   work_types: z.array(OpenSourcePathEnum),
 });
 
+export const extendedOnboardingSchema = z.object({
+  id: z.string(),
+  userId: z.string(),
+  role: z.string(),
+  skills: z.string().array(),
+  categoryPreference: z.array(ProjectCategoryPreferenceEnum),
+  focus: z.string().array(),
+  skillLevel: z.string(),
+  workPace: WorkPaceEnum,
+  work_types: z.array(OpenSourcePathEnum).nullable(),  
+  updatedAt: z.string().nullable(),
+});
 export type TOnboardingSchema = z.infer<typeof onboardingSchema>;

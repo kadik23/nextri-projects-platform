@@ -1,19 +1,13 @@
-import { OpenAPIHono, createRoute, z } from "@hono/zod-openapi";
-import type { Context } from "hono";
+import { createRoute, z } from "@hono/zod-openapi";
+import { extendedOnboardingSchema as onboardingInputSchema } from "../validations/onboarding";
 import { onboardingSchema } from "../validations/onboarding";
-export const app = new OpenAPIHono();
 
-export const extendedOnboardingSchema = onboardingSchema.extend({
-	id: z.string(),
-	updatedAt: z.string().nullable(),
-});
-
-const responseSchema = z.object({
-	result: z.array(extendedOnboardingSchema),
+const onboardingOutputSchema = z.object({
+	result: z.array(onboardingInputSchema),
 	isOnboarded: z.boolean(),
 });
 
-const onboardingRoute = createRoute({
+const getOnboardingRoute = createRoute({
 	method: "get",
 	request: {
 		headers: z.object({
@@ -25,7 +19,7 @@ const onboardingRoute = createRoute({
 		200: {
 			content: {
 				"application/json": {
-					schema: responseSchema,
+					schema: onboardingOutputSchema,
 				},
 			},
 			description: "Successfull onboarding response",
@@ -78,7 +72,7 @@ const postOnboardingRoute = createRoute({
 						message: z.string(),
 						result: z.object({
 							id: z.string(),
-						}),
+						}).optional(),
 					}),
 				},
 			},
@@ -120,10 +114,7 @@ const postOnboardingRoute = createRoute({
 	tags: ["Onboarding"],
 });
 
-app.openapi(onboardingRoute, (c: Context) => {
-	return c.json({ onboarding: "onboarding" }, 200);
-});
-
-app.openapi(postOnboardingRoute, (c: Context) => {
-	return c.json({ onboarding: "onboarding" }, 200);
-});
+export const routesSchema = {
+    getOnboardingRoute,
+    postOnboardingRoute
+}

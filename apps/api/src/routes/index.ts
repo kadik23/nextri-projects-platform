@@ -7,9 +7,8 @@ import { cors } from "hono/cors";
 import { logger } from "hono/logger";
 import { prettyJSON } from "hono/pretty-json";
 import authRoutes from "./auth.route";
-
+import onboardingRoutes from "./onboarding.route";
 import marketplaceRoutes from "./marketplace";
-import onboardingRoutes from "./onboarding";
 
 dotenv.config({ path: path.resolve(__dirname, "../../../../.env") });
 
@@ -34,8 +33,6 @@ app.route("/onboarding", onboardingRoutes);
 app.route("/", marketplaceRoutes);
 
 app.get("/", (c) => c.redirect(FRONTEND_URL));
-
-app.route("/onboarding", appOnboarding);
 
 app.doc("/doc", {
 	openapi: "3.0.0",
