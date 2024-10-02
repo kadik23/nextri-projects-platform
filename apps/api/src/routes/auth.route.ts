@@ -1,9 +1,10 @@
+import { OpenAPIHono } from "@hono/zod-openapi";
 import {
 	OAuth2RequestError,
 	generateCodeVerifier,
 	generateState,
 } from "arctic";
-import { type Context, Hono } from "hono";
+import type { Context } from "hono";
 import { getCookie, setCookie } from "hono/cookie";
 import { deleteSessionForUser, getUserId } from "../data-access/sessions";
 import { github, googleAuth, lucia } from "../lib/auth";
@@ -18,8 +19,9 @@ import {
 } from "../use-cases/auth/magic-link";
 import { emailSchema } from "../validations/auth";
 import type { Email, GitHubUser, GoogleUser } from "../validations/types";
+import { routesSchema } from "./auth.schema";
 
-const auth = new Hono();
+const auth = new OpenAPIHono();
 
 const FRONTEND_URL = process.env.FRONTEND_URL || "http://localhost:3000";
 
@@ -79,7 +81,7 @@ const handleOAuthError = (c: Context, error: unknown) => {
 	}
 
 	if (error instanceof TypeError && error.message === "fetch failed") {
-		const cause = (error as any).cause;
+		const cause = error.cause;
 		if (cause?.code === "UND_ERR_CONNECT_TIMEOUT") {
 			return c.json(
 				{
@@ -106,7 +108,7 @@ const handleOAuthError = (c: Context, error: unknown) => {
 	);
 };
 
-auth.get("/:provider/authorize", async (c) => {
+auth.openapi(routesSchema.authorizeRoute, async (c) => {
 	const providerName = c.req.param("provider");
 	const provider = OAUTH_PROVIDERS[providerName];
 	if (!provider) {
@@ -130,7 +132,7 @@ auth.get("/:provider/authorize", async (c) => {
 	return c.json({ url: url.href });
 });
 
-auth.get("/:provider/callback", async (c) => {
+auth.openapi(routesSchema.callbackRoute, async (c) => {
 	const providerName = c.req.param("provider");
 	const provider = OAUTH_PROVIDERS[providerName];
 	if (!provider) {
@@ -198,7 +200,7 @@ auth.get("/:provider/callback", async (c) => {
 	}
 });
 
-auth.post("/get-magic-link", async (c) => {
+auth.openapi(routesSchema.getMagicLinkRoute, async (c) => {
 	console.log("the generating magic link is working  is running");
 	try {
 		const body = await c.req.json();
@@ -213,7 +215,7 @@ auth.post("/get-magic-link", async (c) => {
 	}
 });
 
-auth.get("/magic/:token", async (c) => {
+auth.openapi(routesSchema.magicLinkLoginRoute, async (c) => {
 	const { token } = c.req.param();
 
 	try {
@@ -238,7 +240,7 @@ auth.get("/magic/:token", async (c) => {
 	}
 });
 
-auth.get("/logout", async (c) => {
+auth.openapi(routesSchema.logoutRoute, async (c) => {
 	const userId = await getUserId(c);
 	const sessionId = getCookie(c, "auth_session");
 

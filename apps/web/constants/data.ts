@@ -1,4 +1,9 @@
-import type { Option } from "@/components/multi-select";
+type Option = {
+  label: string;
+  value: string;
+  disable?: boolean;
+  role?: string;
+};
 
 export const ROLES: Option[] = [
   {
