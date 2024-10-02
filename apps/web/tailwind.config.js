@@ -81,6 +81,9 @@ module.exports = {
 					5: "hsl(var(--chart-5))",
 				},
 			},
+			fontFamily: {
+				sans: ["var(--font-geist-sans)"],
+			},
 		},
 	},
 	plugins: [require("tailwindcss-animate")],
