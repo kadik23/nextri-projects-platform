@@ -73,40 +73,59 @@ function page() {
 				<div className="flex gap-2 text-sm">
 					<div className="opacity-60 font-semibold">Properties</div>
 					<div className="font-semibold flex gap-4 items-center">
-						<div className="bg-black/10 rounded-lg py-0.5 px-2 flex items-center">
-							<Box className="mr-2 w-4 h-4" />
-							78% match
+						<div className="flex flex-col items-start">
+							<div className="flex items-center">
+								<Box className="mr-2 w-4 h-4" />
+								78% match
+							</div>
+							<div className="text-xs font-semibold opacity-60">
+								User Profile
+							</div>
 						</div>
-						<div className="bg-black/10 rounded-lg py-0.5 px-2 flex items-center">
-							<Clock8 className="mr-2 w-4 h-4" />
-							{project.work_pace}
+						<div className="flex flex-col items-start">
+							<div className="flex items-center">
+								<Clock8 className="mr-2 w-4 h-4" />
+								{project.work_pace}
+							</div>
+							<div className="text-xs font-semibold opacity-60">Work Pace</div>
 						</div>
-						<div className="bg-black/10 rounded-lg py-0.5 px-2 flex items-center">
-							<Briefcase className="mr-2 w-4 h-4" />
-							<div>{project.work_type}</div>
+						<div className="flex flex-col items-start">
+							<div className="flex items-center">
+								<Briefcase className="mr-2 w-4 h-4" />
+								<div>{project.work_type}</div>
+							</div>
+							<div className="text-xs font-semibold opacity-60">Work Type</div>
 						</div>
-						<div className="bg-black/10 rounded-lg py-0.5 px-2 flex items-center">
-							{/* biome-ignore lint/a11y/noSvgWithoutTitle: <explanation> */}
-							{/* biome-ignore lint/style/useSelfClosingElements: <explanation> */}
-							<svg
-								xmlns="http://www.w3.org/2000/svg"
-								width={16}
-								height={16}
-								className="mr-2"
-								viewBox="0 0 32 32"
-							>
+						<div className="flex flex-col items-start">
+							<div className="flex items-center">
+								{/* biome-ignore lint/a11y/noSvgWithoutTitle: <explanation> */}
 								{/* biome-ignore lint/style/useSelfClosingElements: <explanation> */}
-								<path
-									fill="currentColor"
-									d="M30 30h-8V4h8zm-6-2h4V6h-4zm-4 2h-8V12h8zm-10 0H2V18h8z"
-								></path>
-							</svg>
-							{project.skill_level}
+								<svg
+									xmlns="http://www.w3.org/2000/svg"
+									width={16}
+									height={16}
+									className="mr-2"
+									viewBox="0 0 32 32"
+								>
+									{/* biome-ignore lint/style/useSelfClosingElements: <explanation> */}
+									<path
+										fill="currentColor"
+										d="M30 30h-8V4h8zm-6-2h4V6h-4zm-4 2h-8V12h8zm-10 0H2V18h8z"
+									></path>
+								</svg>
+								{project.skill_level}
+							</div>
+							<div className="text-xs font-semibold opacity-60">
+								Skill Level
+							</div>
 						</div>
 					</div>
 				</div>
-				<div className="bg-black/20 rounded-lg py-0.5 px-2 text-sm font-semibold w-fit">
-					{project.project_type}
+				<div className="flex gap-2 items-start">
+					<div className="opacity-60 text-sm font-semibold">Project Type</div>
+					<div className="bg-black/10 rounded-lg py-0.5 px-2 text-sm font-semibold w-fit">
+						{project.project_type}
+					</div>
 				</div>
 			</div>
 			<div className="flex flex-col gap-4">
