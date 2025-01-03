@@ -1,0 +1,49 @@
+services:
+  web:
+    depends_on:
+      - api
+    build:
+      context: .
+      dockerfile: ./apps/web/Dockerfile
+    ports:
+      - 3000:3000
+    volumes:
+      - ./apps/web:/app
+      - /app/node_modules
+    networks:
+      - my-network
+
+  api:
+    depends_on:
+      - db
+    build:
+      context: .
+      dockerfile: ./apps/api/Dockerfile
+    ports:
+      - 3001:3001
+    volumes:
+      - ./apps/api:/app
+      - /app/node_modules
+    environment:
+      DATABASE_URL: postgres://postgres:password@db:5432/mydatabase
+    networks:
+      - my-network
+
+  db:
+    image: postgres:15
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: mydatabase
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    networks:
+      - my-network
+
+volumes:
+  pgdata:
+
+networks:
+  my-network:
